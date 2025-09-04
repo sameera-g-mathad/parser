@@ -1,0 +1,86 @@
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+
+    ports:
+      - 3000:3000
+
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+
+    # Depends on postgres and redis.
+    # Will wait until both the containers
+    # send healthy status before starting.
+    # In this case, we want to start the server
+    # only if databases are ready.
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    environment:
+      - PGDATABASE=postgres
+      - PGHOST=postgres
+      - PGPASSWORD=postgres
+      - PGPORT=5432
+      - PGUSER=postgres
+      - PORT=4000
+      - REDISURL=redis://redis:6379
+
+    ports:
+      - 4000:4000
+
+    volumes:
+      - /app/node_modules
+      - ./api:/app
+
+  postgres:
+    image: postgres:17-alpine
+    # Do this so that the db runs succesfully.
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+
+    # Health check: Docker will test the cmd for _ intervals for _ seconds
+    # for _ retries. This is needed for other servies dependent on this
+    # image to start.
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    ports:
+      - 5432:5432
+
+    # uncomment once the schema is finalized.
+    # volumes:
+    #   - postgres_db:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8-alpine
+
+    # Health check: Docker will test the cmd for _ intervals for _ seconds
+    # for _ retries. This is needed for other servies dependent on this
+    # image to start.
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    ports:
+      - 6379:6379
+
+volumes:
+  postgres_db:

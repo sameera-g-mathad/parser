@@ -1,0 +1,30 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:build": "tsc -w",
+    "start:run": "nodemon build/server.js",
+    "start": "concurrently -n TS-Compiler,API -c blue,green \"npm:start:build\" \"npm:start:run\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "pg": "^8.16.3",
+    "redis": "^5.8.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/pg": "^8.15.5",
+    "@types/redis": "^4.0.10",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.10",
+    "typescript": "^5.9.2"
+  }
+}
