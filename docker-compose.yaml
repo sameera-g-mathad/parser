@@ -43,6 +43,27 @@ services:
       - /app/node_modules
       - ./api:/app
 
+  # worker container to handle tasks,
+  # such as sending emails, creating embeddings.
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile.dev
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    environment:
+      - REDISURL=redis://redis:6379
+
+    env_file:
+      - ./worker/.env
+
+    volumes:
+      - /app/node_modules
+      - ./worker:/app
+
   postgres:
     image: postgres:17-alpine
     # Do this so that the db runs succesfully.
