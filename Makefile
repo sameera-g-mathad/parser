@@ -23,6 +23,7 @@ up-d:
 down:
 	docker compose down
 
+
 # Logs the output of a container in a seperate window.
 # Ex Usage: make compose logs <container_name>
 # $(filter-out $@,$(MAKECMDGOALS)) - Tells to filter everything and keep (MAKECMDGOALS)
@@ -43,3 +44,10 @@ volumes:
 # remove volume:
 rm-volume:
 	docker volume rm $(v)
+
+
+# stops the docker compose and
+# deletes the container
+clear:
+	docker compose down
+	docker system prune -f

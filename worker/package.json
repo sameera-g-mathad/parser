@@ -1,0 +1,27 @@
+{
+  "name": "worker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:ts": "tsc -w",
+    "start:js": "nodemon build/index.js",
+    "start": "concurrently -n COMPILER,WORKER -c red,yellow \"npm:start:ts\" \"npm:start:js\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@react-email/components": "^0.5.1",
+    "nodemailer": "^7.0.6",
+    "react": "^19.1.1",
+    "redis": "^5.8.2"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^7.0.1",
+    "@types/react": "^19.1.12",
+    "@types/redis": "^4.0.10",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.10",
+    "typescript": "^5.9.2"
+  }
+}
