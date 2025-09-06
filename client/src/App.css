@@ -1,0 +1,25 @@
+.alert {
+  animation: alertIn 0.5s ease-in-out, alertOut 2s 1s ease-in-out forwards;
+}
+
+@keyframes alertIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes alertOut {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
