@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { randomBytes } from 'crypto';
-import { compare, hash } from 'bcryptjs';
-import { redisClient } from '../db';
+import { hash } from 'bcryptjs';
+import { redisClient, redisPub } from '../db';
 import { insert, selectAll } from './../models/useModel';
 
-const USER_KEY = `user:token`;
+const key = `user:token`;
 
 /**
  * The creteUser method validates user input, such as
@@ -22,14 +22,14 @@ export const createUser = async (
   next: NextFunction
 ) => {
   try {
-    const { email, password, confrimPassword } = req.body;
+    const { firstName, lastName, email, password, confirmPassword } = req.body;
 
     // Will handle errors properly.
-    if (!password || !email || !confrimPassword) {
+    if (!password || !email || !confirmPassword) {
       throw Error('Mandatory fields missing');
     }
     // Will handle errors properly.
-    if (password !== confrimPassword) {
+    if (password !== confirmPassword) {
       throw Error(`Passwords need to match.`);
     }
 
@@ -44,17 +44,15 @@ export const createUser = async (
     // Store the verification id in redis, will be used
     // later for storing user info.
     // Pattern: user:token:<token>: {email, password: encrypted.}
-    const key = USER_KEY + verification_id;
-    await redisClient.hSet(key, {
+    const USER_KEY = key + verification_id;
+    await redisClient.hSet(USER_KEY, {
+      firstName,
+      lastName,
       email,
       password: hashPassword,
     });
 
-    // create a duplicate instance for publishing event.
-    const redisPub = redisClient.duplicate();
-    redisPub.connect(); // connect to instance.
-
-    redisPub.publish('signup', verification_id); // publish the event.
+    redisPub.publish('signup', USER_KEY); // publish the event.
     // Note verification id will be used to send the verification link to user.
 
     await redisClient.expire(key, 300); // 5mins for the user to verify email.

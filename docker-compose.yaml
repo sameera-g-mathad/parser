@@ -1,4 +1,23 @@
 services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+
+    restart: always
+
+    depends_on:
+      client:
+        condition: service_started
+
+      api:
+        condition: service_started
+
+    # 3050 is the port of local machine,
+    # i.e you can access using http://localhost:3050 from
+    # now.
+    ports:
+      - 3050:80
   client:
     build:
       context: ./client
