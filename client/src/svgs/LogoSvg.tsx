@@ -1,7 +1,7 @@
 import React from "react";
 import type { className } from "../interface";
 export const LogoSvg: React.FC<className> = ({ className }) => {
-  return <svg className={`${className} fill-purple-500`} viewBox="0 0 2303 2639" fill="none" xmlns="http://www.w3.org/2000/svg">
+  return <svg className={`${className} fill-indigo-500`} viewBox="0 0 2303 2639" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fillRule="evenodd" clipRule="evenodd"
       d="M2.95038 784.769C12.3082 751.015 61.5705 730.376 88.5283 712.174C169.38 
       657.606 250.209 602.78 331.479 548.864C348.191 537.782 365.005 526.839 381.358 

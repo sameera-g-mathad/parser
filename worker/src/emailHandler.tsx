@@ -6,20 +6,20 @@ import { Signup } from './templates';
 // This file will be responsible for handling emails.
 const sendEmail = async (to: string, template: string): Promise<void> => {
   let mailOptions = {
-    from: process.env.FROM,
+    from: `"Sameer Gururaj Mathad @Parser" <${process.env.FROM}>`,
     to,
-    subject: 'Welcome to Parser!',
+    subject: 'Welcome to Parser🎉',
     html: template,
   };
   await transporter.sendMail(mailOptions);
+  console.log('Email sent!!')
 };
-
 
 const redisSub = redisClient.duplicate();
 redisSub.connect();
 
 redisSub.subscribe('signup', async (channel, message) => {
-  const email = await redisClient.hGet(channel, 'email');
-  const template = await getTemplate(<Signup />);
+  const { email, firstName, lastName } = await redisClient.hGetAll(channel);
+  const template = await getTemplate(<Signup firstName={firstName} lastName={lastName} projectName='Parser' />);
   sendEmail(email!, template);
 });

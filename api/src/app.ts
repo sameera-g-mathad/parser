@@ -4,6 +4,7 @@ import express from 'express';
 import authRouter from './routes/authRoute';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
 const app = express();
 
 // adds body to request

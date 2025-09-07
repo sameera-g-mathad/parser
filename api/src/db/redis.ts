@@ -5,3 +5,6 @@ import { createClient } from 'redis';
 export const redisClient = createClient({
   url: process.env.REDISURL,
 });
+
+export const redisPub = redisClient.duplicate();
+redisPub.connect();

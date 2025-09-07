@@ -35,11 +35,14 @@ export const Signup = () => {
             return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
         }
 
-        const response = await fetch('/api/sign-up', {
+        const response = await fetch('/api/auth/sign-up', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ firstName, lastName, email, password, confirmPassword })
         })
-        console.log(response)
+        console.log(await response.json())
 
     }
     return <div className="m-1">
