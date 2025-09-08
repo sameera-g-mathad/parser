@@ -32,6 +32,7 @@ app.use(
 // auth flow
 app.use('/api/auth', authRouter);
 
+// for all the invalid urls.
 app.use(/.*/, (req: Request, _res: Response, next: NextFunction) => {
   next(
     new AppError(`The requested url ${req.originalUrl} doesn't exists`, 404)
@@ -42,18 +43,14 @@ app.use(/.*/, (req: Request, _res: Response, next: NextFunction) => {
 app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
   if (error instanceof AppError) {
     return res.status(error.statusCode).json({
-      data: {
-        status: 'failure',
-        message: error.message,
-      },
+      status: 'failure',
+      message: error.message,
     });
   }
 
   res.status(500).json({
-    data: {
-      status: 'error',
-      message: 'Internal Server Error.',
-    },
+    status: 'error',
+    message: 'Internal Server Error.',
   });
 });
 

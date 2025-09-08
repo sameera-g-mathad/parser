@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Alert, Button, Input, InputGroup } from "../../reusables";
 import { useAuthReducer, useValidation } from "./hooks";
@@ -17,32 +17,43 @@ export const Signup = () => {
 
 
     const signUp = async () => {
-        const { firstName, lastName, email, password, confirmPassword } = state;
-        if (!firstName || !lastName || !email || !password || !confirmPassword) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
+        try {
+            const { firstName, lastName, email, password, confirmPassword } = state;
+            if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
+            }
+
+
+            if (!isEmailValid(email)) {
+                return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
+            }
+
+            if (!isPasswordValid(password)) {
+                return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true, id: Date.now() })
+            }
+
+            if (!isPasswordSame(password, confirmPassword)) {
+                return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
+            }
+
+            const response = await fetch('/api/auth/sign-up', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ firstName, lastName, email, password, confirmPassword })
+            })
+            const data = await response.json();
+            if (data.status === 'success') {
+                return setAlertMsg({ type: 'alert-success', message: data.message, status: true, id: Date.now() })
+            }
+            throw Error(data.message)
+
         }
-
-
-        if (!isEmailValid(email)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
+        catch (error: unknown) {
+            let message = (error as Error).message || 'Something went wrong, Try again later.'
+            return setAlertMsg({ type: 'alert-danger', message, status: true, id: Date.now() })
         }
-
-        if (!isPasswordValid(password)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true, id: Date.now() })
-        }
-
-        if (!isPasswordSame(password, confirmPassword)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
-        }
-
-        const response = await fetch('/api/auth/sign-up', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ firstName, lastName, email, password, confirmPassword })
-        })
-        console.log(await response.json())
 
     }
     return <div className="m-1">
