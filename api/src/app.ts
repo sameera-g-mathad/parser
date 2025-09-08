@@ -1,10 +1,10 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import authRouter from './routes/authRoute';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import path from 'path';
+import { AppError } from './utils/AppError';
 const app = express();
 
 // adds body to request
@@ -29,7 +29,32 @@ app.use(
   })
 );
 
-//
+// auth flow
 app.use('/api/auth', authRouter);
+
+app.use(/.*/, (req: Request, _res: Response, next: NextFunction) => {
+  next(
+    new AppError(`The requested url ${req.originalUrl} doesn't exists`, 404)
+  );
+});
+
+// global error handler to handle thrown errors
+app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+  if (error instanceof AppError) {
+    return res.status(error.statusCode).json({
+      data: {
+        status: 'failure',
+        message: error.message,
+      },
+    });
+  }
+
+  res.status(500).json({
+    data: {
+      status: 'error',
+      message: 'Internal Server Error.',
+    },
+  });
+});
 
 export default app;

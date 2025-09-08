@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createUser, getUsers } from './../controllers/authController';
+import { createUser, getUsers } from '../controllers/authController';
 const router = Router();
 
 // Route to handle auth related resourses.

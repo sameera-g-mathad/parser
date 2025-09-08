@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { randomBytes } from 'crypto';
 import { hash } from 'bcryptjs';
 import { redisClient, redisPub } from '../db';
-import { insert, selectAll } from './../models/useModel';
+import { insert, selectAll } from '../models/useModel';
+import { AppError, catchAsync } from '../utils';
 
 const key = `user:token`;
 
@@ -16,21 +17,17 @@ const key = `user:token`;
  * Also, sending email is off-loaded to the worker instance
  * by publishing a `signup` event.
  */
-export const createUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+export const createUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const { firstName, lastName, email, password, confirmPassword } = req.body;
 
     // Will handle errors properly.
     if (!password || !email || !confirmPassword) {
-      throw Error('Mandatory fields missing');
+      return next(new AppError('Mandatory fields missing', 404));
     }
     // Will handle errors properly.
     if (password !== confirmPassword) {
-      throw Error(`Passwords need to match.`);
+      return next(new AppError('Passwords need to match.', 404));
     }
 
     // Convert the password into a hash to store
@@ -68,35 +65,19 @@ export const createUser = async (
         },
       },
     });
-  } catch (e) {
-    res.status(400).json({
-      data: {
-        status: 'Failure',
-        message: (e as Error).message,
-      },
-    });
   }
-};
+);
 
 // get all users, dummy in place.
-export const getUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
+export const getUsers = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     const user = await selectAll();
+    if (!user) return next(new AppError('No users found', 400));
     res.status(200).json({
       data: {
         status: 'success',
         users: user,
       },
     });
-  } catch (e) {
-    res.status(400).json({
-      data: {
-        status: 'Not valid.',
-      },
-    });
   }
-};
+);
