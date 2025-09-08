@@ -1,12 +1,18 @@
 import { Router } from 'express';
-import { createUser, getUsers } from '../controllers/authController';
+import {
+  createUserRequest,
+  verifyAndCreateUser,
+  getUsers,
+} from '../controllers/authController';
 const router = Router();
 
 // Route to handle auth related resourses.
 
 // For attempting to create a user. See the controller
 // for more details.
-router.route('/sign-up').post(createUser);
+router.route('/sign-up').post(createUserRequest);
+
+router.route('/verify-user/:id').get(verifyAndCreateUser);
 
 // dummy in place
 router.route('/get').get(getUsers);

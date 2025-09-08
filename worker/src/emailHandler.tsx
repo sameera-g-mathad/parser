@@ -20,6 +20,7 @@ redisSub.connect();
 
 redisSub.subscribe('signup', async (channel, message) => {
   const { email, firstName, lastName } = await redisClient.hGetAll(channel);
-  const template = await getTemplate(<Signup firstName={firstName} lastName={lastName} projectName='Parser' />);
+  const verificationId = channel.split(':')[2]
+  const template = await getTemplate(<Signup firstName={firstName} lastName={lastName} projectName='Parser' verificationId={verificationId} />);
   sendEmail(email!, template);
 });

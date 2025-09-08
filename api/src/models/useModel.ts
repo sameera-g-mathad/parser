@@ -5,22 +5,42 @@ import { pg } from '../db';
 interface user {
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
   pct: string;
   id: string;
   created_at: string;
-  active: boolean;
 }
 
 // Insert an user into db.
 export const insert = async (
+  firstName: string,
+  lastName: string,
   email: string,
   password: string
 ): Promise<void> => {
+  firstName = firstName.toLowerCase();
+  lastName = lastName.toLowerCase();
   await pg.query(
-    `INSERT INTO USERS(EMAIL, PASSWORD, ACTIVE) VALUES($1, $2, $3);`,
-    [email, password, true]
+    `INSERT INTO users(firstname, lastname, email, password) VALUES($1, $2, $3, $4);`,
+    [firstName, lastName, email, password]
   );
-  console.log('user inserted.');
+  console.log('user created.');
+};
+
+export const searchUser = async (email: string): Promise<any> => {
+  const user = await pg.query(`SELECT * FROM users WHERE email=$1 LIMIT 1`, [
+    email,
+  ]);
+  return user.rows;
+};
+
+export const userExists = async (email: string): Promise<boolean> => {
+  const { rowCount } = await pg.query(
+    `SELECT 1 FROM users where email=$1 LIMIT 1`,
+    [email]
+  );
+  return rowCount! > 0 || false;
 };
 
 // Get all users.
