@@ -7,11 +7,12 @@ interface signUpInterface {
   firstName: string,
   lastName: string,
   projectName: string;
+  verificationId: string;
 }
 
 // embed the image inside the email.
 const img = "data:image/png;base64," + fs.readFileSync(`${__dirname}/../../public/logo.png`, 'base64')
-export const Signup: React.FC<signUpInterface> = ({ firstName, lastName, projectName }) => {
+export const Signup: React.FC<signUpInterface> = ({ firstName, lastName, projectName, verificationId }) => {
   return (
     <Html>
       <Head />
@@ -36,7 +37,7 @@ export const Signup: React.FC<signUpInterface> = ({ firstName, lastName, project
 
           </Text>
 
-          <Link href='http://localhost:3050'>
+          <Link href={`http://localhost:3050/auth/verify-user/${verificationId}`}>
             <Text style={verificationButton}>
               Verify My Email
             </Text>

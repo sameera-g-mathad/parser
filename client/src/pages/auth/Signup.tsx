@@ -14,8 +14,6 @@ export const Signup = () => {
     })
 
     const { isEmailValid, isPasswordSame, isPasswordValid } = useValidation();
-
-
     const signUp = async () => {
         try {
             const { firstName, lastName, email, password, confirmPassword } = state;
@@ -47,7 +45,7 @@ export const Signup = () => {
             if (data.status === 'success') {
                 return setAlertMsg({ type: 'alert-success', message: data.message, status: true, id: Date.now() })
             }
-            throw Error(data.message)
+            else throw Error(data.message)
 
         }
         catch (error: unknown) {

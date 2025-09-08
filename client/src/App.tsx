@@ -1,6 +1,6 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { AuthForm, AuthLayout, ForgotPassword, Home, NotFound, ResetPassword, Signin, Signup } from './pages'
+import { AuthForm, AuthLayout, ForgotPassword, Home, NotFound, ResetPassword, Signin, Signup, VerifySignup } from './pages'
 import './App.css'
 function App() {
 
@@ -40,6 +40,14 @@ function App() {
               title='Reset Your Password 🔐'
               description='Enter a new password to secure your account.'>
               <ResetPassword />
+            </AuthForm>} />
+
+          <Route path="verify-user/:verify_id"
+            element={<AuthForm
+              className='fill-teal-500!'
+              title='Account Verification'
+              description='We are verifying your account. You’ll be redirected shortly.'>
+              <VerifySignup />
             </AuthForm>} />
         </Route>
 

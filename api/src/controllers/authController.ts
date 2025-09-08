@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { randomBytes } from 'crypto';
 import { hash } from 'bcryptjs';
 import { redisClient, redisPub } from '../db';
-import { insert, selectAll } from '../models/useModel';
+import { insert, selectAll, userExists } from '../models/useModel';
 import { AppError, catchAsync } from '../utils';
 
-const key = `user:token`;
+const SIGN_UP_VERIFICATION_KEY = `user:token:`;
 
 // Copied from frontend under /auth/hookes/useValidation.ts
 const emailRegex =
@@ -32,7 +32,7 @@ const isPasswordValid = (password: string): boolean => {
  * Also, sending email is off-loaded to the worker instance
  * by publishing a `signup` event.
  */
-export const createUser = catchAsync(
+export const createUserRequest = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { firstName, lastName, email, password, confirmPassword } = req.body;
 
@@ -45,6 +45,15 @@ export const createUser = catchAsync(
       return next(
         new AppError(
           'Email is invalid. It should be like user@example.com and end with .com, .dev, .edu, .org, or .net',
+          400
+        )
+      );
+
+    // check if the user already exists.
+    if (await userExists(email))
+      return next(
+        new AppError(
+          'An account with this email already exists. Please log in instead.',
           400
         )
       );
@@ -89,7 +98,7 @@ export const createUser = catchAsync(
     // Store the verification id in redis, will be used
     // later for storing user info.
     // Pattern: user:token:<token>: {email, password: encrypted.}
-    const USER_KEY = key + verification_id;
+    const USER_KEY = SIGN_UP_VERIFICATION_KEY + verification_id;
     await redisClient.hSet(USER_KEY, {
       firstName,
       lastName,
@@ -119,6 +128,35 @@ export const createUser = catchAsync(
   }
 );
 
+export const verifyAndCreateUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const user = await redisClient.hGetAll(SIGN_UP_VERIFICATION_KEY + id);
+    if (Object.keys(user).length === 0) {
+      return next(
+        new AppError(
+          'Verification link is invalid or has expired. Please sign up again.',
+          400
+        )
+      );
+    }
+    const { firstName, lastName, email, password } = user;
+    if (await userExists(email))
+      return next(
+        new AppError(
+          'An account with this email already exists. Please log in instead.',
+          400
+        )
+      );
+
+    const newUser = await insert(firstName, lastName, email, password);
+    res.status(201).json({
+      status: 'success',
+      message:
+        'Your account has been created successfully. Please log in to continue.',
+    });
+  }
+);
 // get all users, dummy in place.
 export const getUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {

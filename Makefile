@@ -21,7 +21,7 @@ up-d:
 
 # Stops the built images.
 down:
-	docker compose down
+	docker compose down -v
 
 
 # Logs the output of a container in a seperate window.
@@ -45,12 +45,16 @@ volumes:
 rm-volume:
 	docker volume rm $(v)
 
+prune-volumes:
+	docker volume prune -f
+
 
 # stops the docker compose and
-# deletes the container
-clear:
-	docker compose down
+# deletes all the containers and volumes.
+clean:
+	docker compose down -v
 	docker system prune -f
+	docker volume prune -f
 
 
 # ===== Git Commands =====
