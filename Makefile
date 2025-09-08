@@ -51,3 +51,14 @@ rm-volume:
 clear:
 	docker compose down
 	docker system prune -f
+
+
+# ===== Git Commands =====
+fetch:
+	git fetch origin $(branch)
+
+
+commit:
+	git add .
+	git commit -m "$(msg)"
+	git push -u origin $(branch)
