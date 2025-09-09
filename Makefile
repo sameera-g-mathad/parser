@@ -21,7 +21,7 @@ up-d:
 
 # Stops the built images.
 down:
-	docker compose down -v
+	docker compose down 
 
 
 # Logs the output of a container in a seperate window.

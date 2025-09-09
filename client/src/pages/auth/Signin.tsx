@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Alert, Button, Input, InputGroup } from "../../reusables";
 import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
 
@@ -14,6 +14,7 @@ export const Signin = () => {
     })
     const { isEmailValid } = useValidation();
     const { withErrorHandler } = useAuthErrorHandler()
+    const navigate = useNavigate()
 
     // Make a POST request to the server to login the user.
     const signIn = withErrorHandler(async () => {
@@ -26,12 +27,16 @@ export const Signin = () => {
             return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
         }
 
-        const response = await fetch('/api/sign-in', {
+        const response = await fetch('/api/auth/sign-in', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ email, password })
         })
         return response;
-    }, setAlertMsg)
+        // redirect suddenly without waiting.
+    }, setAlertMsg, () => navigate('/app/dashboard'))
 
     return <div>
         {state.alertMsg.status && <Alert className={state.alertMsg.type} message={state.alertMsg.message} key={state.alertMsg.id} />}

@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, CookieOptions } from 'express';
 import { randomBytes } from 'crypto';
 import { hash, compare } from 'bcryptjs';
+import { sign, verify } from 'jsonwebtoken';
 import { redisClient, redisPub } from '../db';
 import {
   insert,
@@ -211,6 +212,65 @@ export const verifyAndCreateUser = catchAsync(
       status: 'success',
       message:
         'Your account has been created successfully. Please log in to continue.',
+    });
+  }
+);
+
+/**
+ * SignIn the user. First the email and password
+ * fields are validated. Later a jwt token is created
+ * and is stored in the response cookie. Finally, response
+ * is sent back to user.
+ */
+export const userSignIn = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+
+    // 1. check if both email and password are present.
+    if (!email || !password)
+      return next(new AppError('Mandatory fields missing', 400));
+
+    // 2. directly check the db for the user with email.
+    // this is because if the user even enters a wrong email
+    // or an invalid email, it won't be present in the db.
+    // Also check the password and send a common message so
+    // the attacker wouldn't know whether the email or password
+    // was wrong.
+    const user = await searchUser(email);
+    if (user === undefined || !(await compare(password, user.password)))
+      return next(new AppError('Invalid email or password', 400));
+
+    // get secret, expires and cookieExpires from env vars.
+    const secret = process.env.JWT_SECRET_KEY!;
+    const expires = process.env.JWT_EXPIRES!;
+    const cookieExpires = process.env.JWT_COOKIE_EXPIRES!;
+
+    // Check if any one is invalid/undefined.
+    if (
+      secret === undefined ||
+      expires === undefined ||
+      cookieExpires === undefined
+    )
+      return next(new AppError('Internal Server Error', 500));
+
+    // Sign the token with user id.
+    const token = sign({ id: user.id }, secret, {
+      expiresIn: expires as any,
+    });
+
+    // Set up cookie options such as expiry date,
+    // where js can access or how can it be accessed (secure: (true/false) i.e https/http)
+    let jwtCookieExpires = parseInt(cookieExpires);
+    const cookieOptions: CookieOptions = {
+      expires: new Date(Date.now() + jwtCookieExpires * 24 * 60 * 60 * 1000),
+      httpOnly: true, // cannot be accesed by js.
+      // secure: true, // this means the cookie can be sent over https connections only.
+    };
+    res.cookie('jwt', `Bearer ${token}`, cookieOptions);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Logged In Succesfully!!',
     });
   }
 );
