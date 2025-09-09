@@ -40,6 +40,10 @@ const hashPassword = async (
   return await hash(password, seed);
 };
 
+const redisKey = (entity: string, key: string, value: string) => {
+  return `${entity}:${key}:${value}`;
+};
+
 /**
  * The creteUser method validates user input, such as
  * (email, password and confirmPassword) and stores the
@@ -95,7 +99,7 @@ export const createUserRequest = catchAsync(
       );
     }
 
-    const emailKey = `user:${email}`;
+    const emailKey = redisKey('user', 'signUp', email);
     // check if email is present, so that user doesn't request signup many times.
     if (await redisClient.get(emailKey))
       return next(
@@ -178,44 +182,78 @@ export const verifyAndCreateUser = catchAsync(
 
 export const forgotPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // Only email is needed.
     const { email } = req.body;
-    // Valid email check
+    // 1. Valid email check
     if (!email || !isEmailValid(email))
       return next(
         new AppError(
-          'Email is invalid. It should be like user@example.com and end with .com, .dev, .edu, .org, or .net',
+          'Please enter a valid email address (e.g., user@example.com).',
+          400
+        )
+      );
+    // 2. Check if the user actually exisits.
+    const user = await searchUser(email);
+    if (user === undefined)
+      return next(
+        new AppError(
+          'We couldn’t find an account with that email. Please sign up to get started',
+          401
+        )
+      );
+
+    // create a email key to check redis db.
+    const emailKey = redisKey('user', 'forgotPassword', email);
+
+    // This is to make sure, user doesn't requests emails
+    // over and over again.
+    const stored_email = await redisClient.get(emailKey);
+
+    // 3. Check if the user has already requested an reset email.
+    if (stored_email !== null)
+      return next(
+        new AppError(
+          'A reset email has already been sent to this address. Please check your inbox and verify your email before requesting again.',
           400
         )
       );
 
-    const user = await searchUser(email);
-    if (user === undefined)
-      return next(new AppError("User doesn't exist. ", 400));
-
-    const emailKey = `user:${email}`;
-
-    const stored_email = await redisClient.get(emailKey);
-    if (stored_email !== null)
-      return next(
-        new AppError('A reset email has be sent already, try again later.', 400)
-      );
-
+    // generate a random id for reset link.
     const verification_id = getRandomId();
+
+    // create the token
     const token = FORGOT_VERIFICATION_KEY + verification_id;
+
+    /*
+     * Store relevant info in redis.
+     * email - Recipient to send email to.
+     * password - Needed to check if the user is
+     * entering the old password instead of a different
+     * one.
+     * firstName, lastName - For email template.
+     */
     await redisClient.hSet(token, {
       email,
       password: user.password,
       firstName: user.firstname,
       lastName: user.lastname,
     });
+
+    // publish token for worker to pickup.
     await redisPub.publish('forgotPassword', token);
+    // the token/hash has 5mins to expire.
     await redisClient.expire(token, 300);
+
+    // store and set expire to user emails.
+    // Needed for check 3, above.
     await redisClient.set(emailKey, '1');
     await redisClient.expire(emailKey, 150);
+
+    // finally send a successful response.
     res.status(200).json({
       status: 'success',
       message:
-        'A reset email has been sent. Please check your inbox to complete registration.',
+        'A reset email has been sent. Please check your inbox to reset your password.',
     });
   }
 );

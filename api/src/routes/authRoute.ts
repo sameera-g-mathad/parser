@@ -21,6 +21,7 @@ router.route('/forgot-password').post(forgotPassword);
 
 // reset password functionality
 router.route('/reset-password/:id').get(validateResetLink).post(resetPassword);
+
 // dummy in place
 router.route('/get').get(getUsers);
 

@@ -14,6 +14,17 @@ interface emailInterface {
 
 // embed the image inside the email.
 const img = "data:image/png;base64," + fs.readFileSync(`${__dirname}/../../public/logo.png`, 'base64')
+
+/**
+ * A react component that is used to create a email template for signUp and resetpassword.
+ * @param firstName firstName of the user.
+ * @param lastName  lastName of the user.
+ * @param preview Preview to display on the email banner in the user's inbox.
+ * @param mainText Main content of the email.
+ * @param extLink Link external to the worker. This can be either verifyUser or resetPassword page of the parser website.
+ * @param linkText A text to be displayed on the link/button of the email.
+ * @returns A JSX element that is used as an email template.
+ */
 export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, mainText, extLink, linkText }) => {
   return (
     <Html>
@@ -57,7 +68,7 @@ export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, 
   );
 };
 
-
+// Css Properties.
 const bodyStyle: CSSProperties = {
   fontSize: '15px',
 }

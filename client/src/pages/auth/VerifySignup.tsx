@@ -1,37 +1,41 @@
 import { useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { useAuthReducer } from "./hooks";
+import { useAuthReducer, useAuthErrorHandler } from "./hooks";
 import { Alert } from "../../reusables";
 
+/**
+ * 
+ * @returns A JSX element that verifies the users that click on the
+ * verification link sent via email.
+ */
 export const VerifySignup = () => {
+    // location is needed to send the token present
+    // in the url
     const location = useLocation();
     const navigate = useNavigate()
+    const { withErrorHandler } = useAuthErrorHandler();
     const { state, setAlertMsg } = useAuthReducer({ messge: '' })
 
-    const verifyUser = async () => {
-        try {
-            const response = await fetch(`/api${location.pathname}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            )
-            const data = await response.json()
-            if (data.status === 'success') {
-                setAlertMsg({ type: 'alert-success', status: true, message: data.message, id: Date.now() })
-                setTimeout(() => navigate('/auth/sign-in'), 4000)
-            }
-            else throw Error(data.message)
-        }
-        catch (error: unknown) {
-            let message = (error as Error).message || 'Something went wrong, Try again later.'
-            setAlertMsg({ type: 'alert-danger', message, status: true, id: Date.now() })
-            setTimeout(() => navigate('/not-found'), 3000)
-        }
-    }
+    // To redirect users on successful verification
+    const onSuccess = () => setTimeout(() => navigate('/auth/sign-in'), 3000)
 
+    // To redirect users on error in verification or the link becomes or is invalid
+    const onError = () => setTimeout(() => navigate('/not-found'), 3000)
+
+    // Make a Get request to verify and create user.
+    const verifyUser = withErrorHandler(async () => {
+        const response = await fetch(`/api${location.pathname}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        )
+        return response
+    }, setAlertMsg, onSuccess, onError)
+
+    // Call verification on componentDidMount.
     useEffect(() => {
         verifyUser()
     }, [])

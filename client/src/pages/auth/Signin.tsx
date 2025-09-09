@@ -1,16 +1,22 @@
-import React, { useReducer } from "react";
 import { Link } from "react-router-dom";
 import { Alert, Button, Input, InputGroup } from "../../reusables";
-import { useAuthReducer, useValidation } from "./hooks";
+import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
 
+/**
+ * 
+ * @returns A JSX element that is used to login the users
+ * into parser application
+ */
 export const Signin = () => {
     const { state, setAlertMsg, setFieldWithValue } = useAuthReducer({
         email: '',
         password: '',
     })
     const { isEmailValid } = useValidation();
+    const { withErrorHandler } = useAuthErrorHandler()
 
-    const signIn = async () => {
+    // Make a POST request to the server to login the user.
+    const signIn = withErrorHandler(async () => {
         const { email, password } = state;
         if (!email || !password) {
             return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
@@ -20,12 +26,13 @@ export const Signin = () => {
             return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
         }
 
-        const response = await fetch('/api/sign-up', {
+        const response = await fetch('/api/sign-in', {
             method: 'POST',
             body: JSON.stringify({ email, password })
         })
+        return response;
+    }, setAlertMsg)
 
-    }
     return <div>
         {state.alertMsg.status && <Alert className={state.alertMsg.type} message={state.alertMsg.message} key={state.alertMsg.id} />}
         <InputGroup className="py-2" label="email">

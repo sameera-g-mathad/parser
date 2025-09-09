@@ -21,6 +21,7 @@ export const insert = async (
 ): Promise<void> => {
   firstName = firstName.toLowerCase();
   lastName = lastName.toLowerCase();
+  email = email.toLowerCase();
   await pg.query(
     `INSERT INTO users(firstname, lastname, email, password) VALUES($1, $2, $3, $4);`,
     [firstName, lastName, email, password]
