@@ -1,72 +1,70 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Alert, Button, Input, InputGroup } from "../../reusables";
-import { useAuthReducer, useValidation } from "./hooks";
+import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 
+/**
+ * 
+ * @returns A JSX component to reset the password of the user. Checks if the url is valid and sets the password.
+ */
 export const ResetPassword = () => {
     const { state, setAlertMsg, setFieldWithValue } = useAuthReducer({ password: '', confirmPassword: '' })
+    // Needed to get the token present in the user.
     const location = useLocation();
     const navigate = useNavigate();
+    const { withErrorHandler } = useAuthErrorHandler()
     const { isPasswordSame, isPasswordValid } = useValidation();
 
-    const checkIsUrlValid = async () => {
-        try {
-            const isValidURL = await fetch(`/api${location.pathname}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-            const url_response = await isValidURL.json();
-            console.log(url_response)
-            if (url_response.status === 'failure')
-                throw Error(url_response.message)
 
-        }
-        catch (error: unknown) {
-            let message = (error as Error).message || 'Something went wrong, Try again later.'
-            setAlertMsg({ type: 'alert-danger', message, status: true, id: Date.now() })
-            setTimeout(() => navigate('/not-found'), 3000)
-        }
-    }
+    const onUrlError = () => setTimeout(() => navigate('/not-found'), 3000)
+
+
+    // A GET request to test if the url is valid.
+    const checkIsUrlValid = withErrorHandler(async () => {
+        const isValidURL = await fetch(`/api${location.pathname}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        return isValidURL
+    }, setAlertMsg, null, onUrlError)
+
+
+    // Check for url validity on 
+    // componentDidMount
     useEffect(() => {
         checkIsUrlValid()
     }, [])
 
-    const resetPassword = async () => {
-        try {
-            const { password, confirmPassword } = state;
-            if (!password || !confirmPassword) {
-                return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
-            }
-            if (!isPasswordValid(password)) {
-                return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true, id: Date.now() })
-            }
-            if (!isPasswordSame(password, confirmPassword)) {
-                return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
-            }
+    // Make a post request to reset the password
+    const resetPassword = withErrorHandler(async () => {
+        const { password, confirmPassword } = state;
 
-            const response = await fetch(`/api${location.pathname}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ password, confirmPassword })
-            })
-            const data = await response.json()
-            if (data.status === 'success') {
-                return setAlertMsg({ type: 'alert-success', message: data.message, status: true, id: Date.now() })
-            }
-            else {
-                throw Error(data.message)
-            }
+        // check if all fields are present
+        if (!password || !confirmPassword) {
+            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
         }
-        catch (error: unknown) {
-            let message = (error as Error).message || 'Something went wrong, Try again later.'
-            return setAlertMsg({ type: 'alert-danger', message, status: true, id: Date.now() })
 
+        // check if the password is valid.
+        if (!isPasswordValid(password)) {
+            return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true, id: Date.now() })
         }
-    }
+        // check if passwords match.
+        if (!isPasswordSame(password, confirmPassword)) {
+            return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
+        }
+        const response = await fetch(`/api${location.pathname}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password, confirmPassword })
+        })
+        // Imp.
+        return response
+    }, setAlertMsg)
+
     return <div>
         {state.alertMsg['status'] && <Alert className={state.alertMsg.type} key={state.alertMsg.id} message={state.alertMsg.message} />}
         <InputGroup className="py-2" label="new password">

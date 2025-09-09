@@ -3,7 +3,14 @@ import { transporter } from './transporter';
 import { getTemplate } from './getTemplate';
 import { Email } from './templates';
 
-// This file will be responsible for handling emails.
+
+/**
+ * This file will be responsible for handling emails.
+ * @param to Email recipient.
+ * @param template A string template/html file used for sending the email.
+ * @param subject Title of the email.
+ * @returns void.
+ */
 const sendEmail = async (to: string, template: string, subject: string): Promise<void> => {
   let mailOptions = {
     from: `"Sameer Gururaj Mathad @Parser" <${process.env.FROM}>`,

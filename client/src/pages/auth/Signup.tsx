@@ -1,9 +1,12 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { Alert, Button, Input, InputGroup } from "../../reusables";
-import { useAuthReducer, useValidation } from "./hooks";
+import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
 
 
+/**
+ * 
+ * @returns A JSX component that allows users to signup to the parser website.
+ */
 export const Signup = () => {
     const { state, setAlertMsg, setFieldWithValue } = useAuthReducer({
         firstName: '',
@@ -12,48 +15,44 @@ export const Signup = () => {
         password: '',
         confirmPassword: '',
     })
+    const { withErrorHandler } = useAuthErrorHandler()
 
     const { isEmailValid, isPasswordSame, isPasswordValid } = useValidation();
-    const signUp = async () => {
-        try {
-            const { firstName, lastName, email, password, confirmPassword } = state;
-            if (!firstName || !lastName || !email || !password || !confirmPassword) {
-                return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
-            }
 
+    const signUp = withErrorHandler(async () => {
+        const { firstName, lastName, email, password, confirmPassword } = state;
 
-            if (!isEmailValid(email)) {
-                return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
-            }
-
-            if (!isPasswordValid(password)) {
-                return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true, id: Date.now() })
-            }
-
-            if (!isPasswordSame(password, confirmPassword)) {
-                return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
-            }
-
-            const response = await fetch('/api/auth/sign-up', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ firstName, lastName, email, password, confirmPassword })
-            })
-            const data = await response.json();
-            if (data.status === 'success') {
-                return setAlertMsg({ type: 'alert-success', message: data.message, status: true, id: Date.now() })
-            }
-            else throw Error(data.message)
-
+        // check if any field is null.
+        if (!firstName || !lastName || !email || !password || !confirmPassword) {
+            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
         }
-        catch (error: unknown) {
-            let message = (error as Error).message || 'Something went wrong, Try again later.'
-            return setAlertMsg({ type: 'alert-danger', message, status: true, id: Date.now() })
+        // check if email is valid.
+        if (!isEmailValid(email)) {
+            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
         }
 
-    }
+        // check if password is valid.
+        if (!isPasswordValid(password)) {
+            return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true, id: Date.now() })
+        }
+
+        // check if passwords match
+        if (!isPasswordSame(password, confirmPassword)) {
+            return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
+        }
+
+        // make a POST request.
+        const response = await fetch('/api/auth/sign-up', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ firstName, lastName, email, password, confirmPassword })
+        })
+        // return the response - Required.
+        return response
+    }, setAlertMsg)
+
     return <div className="m-1">
         {state.alertMsg['status'] && <Alert className={state.alertMsg['type']} key={state.alertMsg['id']} message={state.alertMsg['message']} />}
         <div className="flex justify-evenly">

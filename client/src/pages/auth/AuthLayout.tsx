@@ -1,9 +1,15 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
+
+/**
+ * 
+ * @returns A JSX component that renders a common page like SignUp, SignIn part
+ * of nested routes along with some common UI functionalities. 
+ */
 export const AuthLayout: React.FC = () => {
     const location = useLocation();
+    // Adding colors for visuals.
     const getColor = (): string => {
-
         switch (location.pathname) {
             case '/auth/sign-in': return 'bg-indigo-200';
             case '/auth/sign-up': return 'bg-pink-200';
@@ -13,6 +19,8 @@ export const AuthLayout: React.FC = () => {
     }
     return <div className={`w-full h-screen grid grid-cols-12`}>
         <div className="sm:col-span-6 col-span-full">
+            {/*Need to be present for the components of nested routes to be displayed
+            by the react-router-dom */}
             <Outlet />
         </div>
 

@@ -1,11 +1,20 @@
 import { useReducer } from 'react';
-import type { alertMsgInterface } from '../interface';
+import type { alertMsgInterface, Reducer, ReducerType } from '../interface';
 
-type ReducerType<T> = T & { alertMsg: alertMsgInterface };
+// file to generailize the use of useReducer.
+
+// Two actions, either to set the field (from T) or alertMsg
+// to display alerts on screen.
 type payloadActions =
   | { action: 'setField'; field: string; value: string }
   | { action: 'setAlertMsg'; value: alertMsgInterface };
 
+/**
+ * Reducer function to handle state.
+ * @param state  An object with the initial object passed as well as the alert object.
+ * @param payload Will be either to set the field of the initial state passed or alert object.
+ * @returns void
+ */
 const reducer = <T>(state: ReducerType<T>, payload: payloadActions) => {
   switch (payload.action) {
     case 'setField':
@@ -17,7 +26,17 @@ const reducer = <T>(state: ReducerType<T>, payload: payloadActions) => {
   }
 };
 
-export const useAuthReducer = <T extends object>(initialState: T) => {
+/**
+ * Auth reducer hook that is exported to use. Returns
+ * state, setFieldWithValue, setAlertMsg methods.
+ * @param initialState Object that the client passes initially.
+ * @returns Reducer
+ * @example SignUp: {email:'', password: '', confirmPassword: '', firstName: '', lastName: ''}.
+ * @example SignIn: {email: '', password: ''}
+ */
+export const useAuthReducer = <T extends object>(
+  initialState: T
+): Reducer<T> => {
   const [state, dispatch] = useReducer(reducer, {
     ...initialState,
     alertMsg: {
@@ -28,14 +47,28 @@ export const useAuthReducer = <T extends object>(initialState: T) => {
     },
   } as ReducerType<T>);
 
+  /**
+   * Method to set field - value
+   * @param field  Field present in the state.
+   * @param value  Value to set the field in the state.
+   * @returns void
+   * @example email: 'example@test.com'
+   */
   const setFieldWithValue = (field: string, value: string) => {
     dispatch({ action: 'setField', field, value });
   };
 
+  //
+  /**
+   * Method to set alert message.
+   * @param alertMsg - Object to set the alert banner, with alertMsgInterface.
+   * @returns void
+   */
   const setAlertMsg = (alertMsg: alertMsgInterface) => {
     dispatch({ action: 'setAlertMsg', value: alertMsg });
   };
 
+  // return state, and methods to use the hook.
   return {
     state,
     setFieldWithValue,
