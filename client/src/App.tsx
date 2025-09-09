@@ -1,6 +1,16 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { AuthForm, AuthLayout, ForgotPassword, Home, NotFound, ResetPassword, Signin, Signup, VerifySignup } from './pages'
+import {
+  // Homepage
+  Home,
+  // Auth related Components
+  AuthForm, AuthLayout, ForgotPassword, ResetPassword, Signin, Signup, VerifySignup,
+
+  // App related Components
+  Dashboard,
+  // Not found Component
+  NotFound
+} from './pages'
 import './App.css'
 
 /**
@@ -77,6 +87,8 @@ function App() {
             }
           />
         </Route>
+
+        <Route path="/app/dashboard" element={<Dashboard />} />
 
         {/* NotFound route */}
         <Route path='*' element={<NotFound />} />

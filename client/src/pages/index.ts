@@ -1,3 +1,4 @@
+export * from './app';
 export * from './auth';
-export * from './homePage'
+export * from './homePage';
 export * from './not-found';

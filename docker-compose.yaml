@@ -46,6 +46,9 @@ services:
       redis:
         condition: service_healthy
 
+    env_file:
+      - ./api/.env
+
     environment:
       - PGDATABASE=postgres
       - PGHOST=postgres
