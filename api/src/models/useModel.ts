@@ -1,7 +1,6 @@
 import { pg } from '../db';
 
-// Handles user related queries.
-
+// File to handle user related queries.
 interface user {
   email: string;
   password: string;
@@ -12,13 +11,21 @@ interface user {
   created_at: string;
 }
 
-// Insert an user into db.
+/**
+ * Insert an user into db.
+ * @param firstName string, firstname of the user
+ * @param lastName string, lastname of the user
+ * @param email string, email of the user
+ * @param password string, password of the user
+ */
 export const insert = async (
   firstName: string,
   lastName: string,
   email: string,
   password: string
 ): Promise<void> => {
+  // convert all three fields into lower case for
+  // consistency.
   firstName = firstName.toLowerCase();
   lastName = lastName.toLowerCase();
   email = email.toLowerCase();
@@ -29,6 +36,11 @@ export const insert = async (
   console.log('user created.');
 };
 
+/**
+ * Query method to check if the user exists.
+ * @param email Email of the user.
+ * @returns An object consisting of user details.
+ */
 export const searchUser = async (email: string): Promise<any> => {
   const user = await pg.query(`SELECT * FROM users WHERE email=$1 LIMIT 1`, [
     email,
@@ -36,6 +48,11 @@ export const searchUser = async (email: string): Promise<any> => {
   return user.rows[0];
 };
 
+/**
+ * Query method to check if the user exists.
+ * @param email Email of the user.
+ * @returns boolean if the user exists or not.
+ */
 export const userExists = async (email: string): Promise<boolean> => {
   const { rowCount } = await pg.query(
     `SELECT 1 FROM users where email=$1 LIMIT 1`,
@@ -44,6 +61,11 @@ export const userExists = async (email: string): Promise<boolean> => {
   return rowCount! > 0 || false;
 };
 
+/**
+ * Method to update the user password given an email.
+ * @param email Email of the user.
+ * @param password New password to be updated.
+ */
 export const updateUserPassword = async (
   email: string,
   password: string
