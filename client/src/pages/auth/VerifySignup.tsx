@@ -27,7 +27,8 @@ export const VerifySignup = () => {
         }
         catch (error: unknown) {
             let message = (error as Error).message || 'Something went wrong, Try again later.'
-            return setAlertMsg({ type: 'alert-danger', message, status: true, id: Date.now() })
+            setAlertMsg({ type: 'alert-danger', message, status: true, id: Date.now() })
+            setTimeout(() => navigate('/not-found'), 3000)
         }
     }
 
