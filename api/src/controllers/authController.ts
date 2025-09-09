@@ -19,28 +19,48 @@ const emailRegex =
 
 const passwordRegex = /^((?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])).{15,30}$/;
 
-// method to check if email is valid
+// funtion to check if email is valid
 const isEmailValid = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
-// method to check if password is valid
+// funtion to check if password is valid
 const isPasswordValid = (password: string): boolean => {
   return passwordRegex.test(password);
 };
 
+/**
+ * A wrapper to generate a random string using randomBytes funtion.
+ * @param size Defualt = 64. Size of the bytes to be generated.
+ * @returns string
+ */
 const getRandomId = (size: number = 64): string => {
   return randomBytes(size).toString('hex');
 };
 
+/**
+ * A wrapper to encrypt the plain password.
+ * @param password Regular password entered by the user.
+ * @param saltLength Salt length to create a new password.
+ * @returns Encrypted password
+ */
 const hashPassword = async (
   password: string,
-  seed: number = 11
+  saltLength: number = 11
 ): Promise<string> => {
-  return await hash(password, seed);
+  return await hash(password, saltLength);
 };
 
-const redisKey = (entity: string, key: string, value: string) => {
+/**
+ * Function to return redisKeys. Can be done in
+ * a single line, but added here for consistency
+ * @param entity Entity being stored, ex: user
+ * @param key key being stored, ex: email
+ * @param value value being stored, ex: test@test.com
+ * @example user:email:test@test.com
+ * @returns A redis key.
+ */
+const redisKey = (entity: string, key: string, value: string): string => {
   return `${entity}:${key}:${value}`;
 };
 
@@ -150,9 +170,20 @@ export const createUserRequest = catchAsync(
   }
 );
 
+/**
+ * This methodis used to verify and create the user.
+ * A unique url is sent to the user during signup.
+ * when the user clicks the url, this method is invoked.
+ * Checks if the url is valid, has been expired and
+ * finally creates the user in the database.
+ */
 export const verifyAndCreateUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // get the unique url.
     const { id } = req.params;
+    // 1. Check if the id/token is present in redis db.
+    // If expired, then user did not click within allowed
+    // limit.
     const user = await redisClient.hGetAll(SIGN_UP_VERIFICATION_KEY + id);
     if (Object.keys(user).length === 0) {
       return next(
@@ -162,7 +193,10 @@ export const verifyAndCreateUser = catchAsync(
         )
       );
     }
+    // get user details.
     const { firstName, lastName, email, password } = user;
+    // 2. Check if the user already exists. If so return
+    // error.
     if (await userExists(email))
       return next(
         new AppError(
@@ -171,6 +205,7 @@ export const verifyAndCreateUser = catchAsync(
         )
       );
 
+    // 3. Create the user in the db and return the response.
     const newUser = await insert(firstName, lastName, email, password);
     res.status(201).json({
       status: 'success',
@@ -180,6 +215,15 @@ export const verifyAndCreateUser = catchAsync(
   }
 );
 
+/**
+ * Method used to request a link to reset the password.
+ * Checks if the email is valid, user exists, and if the
+ * request itself is valid, i.e the user is requesting more emails
+ * even after sending one. Creates a random token and sends it to
+ * the user email via worker. the link is valid for 5 mins after which
+ * the link will be expired. The user email is also stored for 3 mins
+ * to prevent user from requesting more emails.
+ */
 export const forgotPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // Only email is needed.
@@ -257,6 +301,7 @@ export const forgotPassword = catchAsync(
     });
   }
 );
+
 // get all users, dummy in place.
 export const getUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -269,28 +314,51 @@ export const getUsers = catchAsync(
   }
 );
 
+/**
+ * This method is used to check if the link used by the user
+ * to reset password is valid or not. If not then send a unauthorized
+ * response. If the url is valid, send a success response.
+ */
 export const validateResetLink = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // get the id from the url
     const { id } = req.params;
+
+    // check if the user reset link is still active. If not
+    // return a unauthorized error.
     const user = await redisClient.hGetAll(FORGOT_VERIFICATION_KEY + id);
     if (Object.keys(user).length === 0) {
       return next(
         new AppError(
-          'Verification link is invalid or has expired. Please sign up again.',
+          'This password reset link is invalid or has expired. Please request a new one.',
           401
         )
       );
     }
+
+    // Return succesfull response.
     res.status(200).json({
       status: 'success',
-      message: 'Valid url',
+      message:
+        'This reset link is active. Please continue to update your password.',
     });
   }
 );
 
+/**
+ * This method is used to reset the password of the user
+ * if the link they use is valid. Firstly the link is checked
+ * if it is active or not. If the user is present, if the password
+ * is valid or if the passwords matches. Also tests if the user new
+ * password is same as the current password. Finally the password
+ * is updated.
+ */
 export const resetPassword = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
+
+    // 1. check if the user reset link is still active. If not
+    // return a unauthorized error.
     const token = FORGOT_VERIFICATION_KEY + id;
     const user = await redisClient.hGetAll(FORGOT_VERIFICATION_KEY + id);
     if (Object.keys(user).length === 0) {
@@ -302,18 +370,18 @@ export const resetPassword = catchAsync(
       );
     }
 
-    // check if the user already exists.
+    // 2. check if the user already exists.
     if (!(await userExists(user.email)))
       return next(new AppError("Account doesn't exists.", 401));
 
     const { password, confirmPassword } = req.body;
 
-    // Mandatory fields check
+    // 3. Mandatory fields check
     if (!password || !confirmPassword) {
       return next(new AppError('Mandatory fields missing', 400));
     }
 
-    // check regex for password
+    // 4. check regex for password
     if (!isPasswordValid(password))
       return next(
         new AppError(
@@ -322,7 +390,7 @@ export const resetPassword = catchAsync(
         )
       );
 
-    // Password match check
+    // 5. Password match check
     if (password !== confirmPassword) {
       return next(
         new AppError(
@@ -332,6 +400,7 @@ export const resetPassword = catchAsync(
       );
     }
 
+    // 6. Check if the old password is equal to new password.
     const passwordMatch = await compare(password, user.password);
     if (passwordMatch) {
       return next(
@@ -339,8 +408,13 @@ export const resetPassword = catchAsync(
       );
     }
 
+    // 7. create a new password.
     const newPassword = await hashPassword(password);
+
+    // 8. Update the user table.
     await updateUserPassword(user.email, newPassword);
+
+    // 9. Return a success response
     res.status(200).json({
       status: 'success',
       message: 'Password is reset. Please continue to login.',
