@@ -3,21 +3,23 @@ import { Body, Container, Html, Head, Hr, Link, Preview, Section, Text, Img, } f
 import fs from 'fs'
 // A react component for creating a welcome 
 // email to the users.
-interface signUpInterface {
+interface emailInterface {
   firstName: string,
   lastName: string,
-  projectName: string;
-  verificationId: string;
+  preview: string,
+  mainText: string,
+  extLink: string,
+  linkText: string
 }
 
 // embed the image inside the email.
 const img = "data:image/png;base64," + fs.readFileSync(`${__dirname}/../../public/logo.png`, 'base64')
-export const Signup: React.FC<signUpInterface> = ({ firstName, lastName, projectName, verificationId }) => {
+export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, mainText, extLink, linkText }) => {
   return (
     <Html>
       <Head />
       <Body style={bodyStyle}>
-        <Preview>Let’s get started — verify your email to activate your account.</Preview>
+        <Preview>{preview}</Preview>
         <Container>
           <Section style={logoStyle}>
             <Img
@@ -32,19 +34,17 @@ export const Signup: React.FC<signUpInterface> = ({ firstName, lastName, project
             Hi {firstName} {lastName},
           </Text>
           <Text>
-            Thanks for signing up for {projectName}! We’re excited to have you on board.
-            Before we get started, please verify your email to activate your account.
-
+            {mainText}
           </Text>
 
-          <Link href={`http://localhost:3050/auth/verify-user/${verificationId}`}>
+          <Link href={extLink}>
             <Text style={verificationButton}>
-              Verify My Email
+              {linkText}
             </Text>
           </Link>
 
           <Text>
-            If you didn’t sign up for {projectName}, you can safely ignore this email.
+            If you didn’t sign up for Parser, you can safely ignore this email.
           </Text>
 
           <Text>
@@ -80,8 +80,8 @@ const verificationButton: CSSProperties = {
   borderRadius: '10px',
   fontWeight: 'bold',
   color: 'white',
-  backgroundColor: 'blue'
+  backgroundColor: '#554C91'
 }
 
 
-Signup.displayName = 'Signup'
+Email.displayName = 'Signup'

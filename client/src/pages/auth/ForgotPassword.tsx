@@ -7,9 +7,31 @@ export const ForgotPassword = () => {
     const { isEmailValid } = useValidation();
 
     const forgotPassword = async () => {
-        if (!isEmailValid(state.email)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
+        try {
+            if (!isEmailValid(state.email)) {
+                return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
+            }
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: state.email })
+            })
+            const data = await response.json()
+            if (data.status === 'success') {
+                return setAlertMsg({ type: 'alert-success', message: data.message, status: true, id: Date.now() })
+            }
+            else {
+                throw Error(data.message)
+            }
         }
+        catch (error: unknown) {
+            let message = (error as Error).message || 'Something went wrong, Try again later.'
+            return setAlertMsg({ type: 'alert-danger', message, status: true, id: Date.now() })
+
+        }
+
     }
 
     return <div>

@@ -20,7 +20,6 @@ export const Signin = () => {
             return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
         }
 
-
         const response = await fetch('/api/sign-up', {
             method: 'POST',
             body: JSON.stringify({ email, password })
@@ -35,7 +34,7 @@ export const Signin = () => {
         <InputGroup className="py-2" label="password">
             <Input callback={(password) => setFieldWithValue('password', password)} className="auth-input w-80!" type="password" placeholder="At least 15 characters." value={state.password} />
         </InputGroup>
-        <span className="flex justify-end m-2">
+        <span className="flex justify-end m-2 text-blue-700">
             <Link to="/auth/forgot-password">Forgot Password?</Link>
         </span>
         <span className="flex m-2">

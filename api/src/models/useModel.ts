@@ -5,8 +5,8 @@ import { pg } from '../db';
 interface user {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  firstname: string;
+  lastname: string;
   pct: string;
   id: string;
   created_at: string;
@@ -32,7 +32,7 @@ export const searchUser = async (email: string): Promise<any> => {
   const user = await pg.query(`SELECT * FROM users WHERE email=$1 LIMIT 1`, [
     email,
   ]);
-  return user.rows;
+  return user.rows[0];
 };
 
 export const userExists = async (email: string): Promise<boolean> => {
@@ -41,6 +41,16 @@ export const userExists = async (email: string): Promise<boolean> => {
     [email]
   );
   return rowCount! > 0 || false;
+};
+
+export const updateUserPassword = async (
+  email: string,
+  password: string
+): Promise<any> => {
+  await pg.query(
+    `UPDATE users SET password=$1, pct=CURRENT_TIMESTAMP WHERE email=$2`,
+    [password, email]
+  );
 };
 
 // Get all users.
