@@ -8,6 +8,8 @@ RUN npm install
 
 COPY ./ ./
 
+# remove build to reflect
+# new changes from src.
 RUN rm -r build
 
 CMD [ "npm", "start" ]
