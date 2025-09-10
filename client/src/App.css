@@ -1,7 +1,14 @@
+/*
+To set the style of alert boxes. both alertIn and alertOut
+animations are added to give a fadin and out effect.
+*/
 .alert {
   animation: alertIn 0.5s ease-in-out, alertOut 2s 1s ease-in-out forwards;
 }
 
+/*
+The alertbox starts from top and comes down.
+*/
 @keyframes alertIn {
   from {
     opacity: 0;
@@ -13,6 +20,9 @@
   }
 }
 
+/*
+The alertbox starts to fade.
+*/
 @keyframes alertOut {
   from {
     opacity: 1;
@@ -21,5 +31,53 @@
   to {
     opacity: 0;
     visibility: hidden;
+  }
+}
+
+/*
+The icon in not-found is made to float
+with this animation
+*/
+.float-along {
+  animation: float_along 3s ease-in-out 1s infinite;
+}
+
+/*
+  0 - stays the same
+  50% - Moves to -30px
+  100% - Comes back to its position
+*/
+@keyframes float_along {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-30px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/*
+This gives a conversation effect 
+to the text printed.
+*/
+.conversation {
+  overflow: hidden;
+  white-space: nowrap;
+  width: fit-content;
+  animation: typing 3s steps(50, end) forwards;
+}
+
+/*
+width goes from 0 to 100%
+*/
+@keyframes typing {
+  0% {
+    max-width: 0%;
+  }
+  100% {
+    max-width: 100%;
   }
 }
