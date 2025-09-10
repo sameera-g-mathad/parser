@@ -1,5 +1,5 @@
 import React from "react";
-import type { className } from "../interface";
+import type { className } from "@/interface";
 export const LogoSvg: React.FC<className> = ({ className }) => {
   return <svg className={`${className} fill-indigo-500`} viewBox="0 0 2303 2639" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fillRule="evenodd" clipRule="evenodd"

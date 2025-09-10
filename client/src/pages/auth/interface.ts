@@ -1,4 +1,4 @@
-import type { alertType } from '../../reusables/interface';
+import type { alertType } from '@/reusables/interface';
 
 export interface alertMsgInterface {
   type: alertType;
@@ -39,7 +39,6 @@ export type ErrorHandler = {
   ) => () => Promise<void>;
 };
 
-export type DataResponse = { status: string; message: string };
 // Common Interfaces used by Components.
 export interface authFormInterface {
   title: string;

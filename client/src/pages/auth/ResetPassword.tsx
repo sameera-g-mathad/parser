@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Alert, Button, Input, InputGroup } from "../../reusables";
+import { Alert, Button, Input, InputGroup } from "@/reusables";
 import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 

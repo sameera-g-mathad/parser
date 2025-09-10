@@ -1,6 +1,5 @@
-import { Alert, Button, Input, InputGroup } from "../../reusables";
+import { Alert, Button, Input, InputGroup } from "@/reusables";
 import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
-import type { DataResponse } from "./interface";
 /**
  * 
  * @returns A JSX component for the user to request password reset.

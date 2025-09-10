@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { useAuthReducer, useAuthErrorHandler } from "./hooks";
-import { Alert } from "../../reusables";
+import { Alert } from "@/reusables";
 
 /**
  * 

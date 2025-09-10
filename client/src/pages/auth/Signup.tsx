@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Alert, Button, Input, InputGroup } from "../../reusables";
+import { Alert, Button, Input, InputGroup } from "@/reusables";
 import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
 
 
