@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, CookieOptions } from 'express';
 import { randomBytes } from 'crypto';
 import { hash, compare } from 'bcryptjs';
-import { sign, verify } from 'jsonwebtoken';
+import { sign, verify, JwtPayload } from 'jsonwebtoken';
 import { redisClient, redisPub } from '../db';
 import {
   insert,
@@ -9,11 +9,18 @@ import {
   userExists,
   searchUser,
   updateUserPassword,
+  findById,
 } from '../models/useModel';
 import { AppError, catchAsync } from '../utils';
 
 const SIGN_UP_VERIFICATION_KEY = `user:token:`;
 const FORGOT_VERIFICATION_KEY = 'user:email:';
+
+// get secret, expires and cookieExpires from env vars.
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY!;
+const JWT_EXPIRES = process.env.JWT_EXPIRES!;
+const JWT_COOKIE_EXPIRES = process.env.JWT_COOKIE_EXPIRES!;
+
 // Copied from frontend under /auth/hookes/useValidation.ts
 const emailRegex =
   /^[0-9a-zA-Z]+(\.?[0-9a-zA-Z+_])*@[0-9a-zA-Z]+\.(com|dev|edu|org|net)$/;
@@ -240,27 +247,22 @@ export const userSignIn = catchAsync(
     if (user === undefined || !(await compare(password, user.password)))
       return next(new AppError('Invalid email or password', 400));
 
-    // get secret, expires and cookieExpires from env vars.
-    const secret = process.env.JWT_SECRET_KEY!;
-    const expires = process.env.JWT_EXPIRES!;
-    const cookieExpires = process.env.JWT_COOKIE_EXPIRES!;
-
     // Check if any one is invalid/undefined.
     if (
-      secret === undefined ||
-      expires === undefined ||
-      cookieExpires === undefined
+      JWT_SECRET_KEY === undefined ||
+      JWT_EXPIRES === undefined ||
+      JWT_COOKIE_EXPIRES === undefined
     )
       return next(new AppError('Internal Server Error', 500));
 
     // Sign the token with user id.
-    const token = sign({ id: user.id }, secret, {
-      expiresIn: expires as any,
+    const token = sign({ id: user.id }, JWT_SECRET_KEY, {
+      expiresIn: JWT_EXPIRES as any,
     });
 
     // Set up cookie options such as expiry date,
     // where js can access or how can it be accessed (secure: (true/false) i.e https/http)
-    let jwtCookieExpires = parseInt(cookieExpires);
+    let jwtCookieExpires = parseInt(JWT_COOKIE_EXPIRES);
     const cookieOptions: CookieOptions = {
       expires: new Date(Date.now() + jwtCookieExpires * 24 * 60 * 60 * 1000),
       httpOnly: true, // cannot be accesed by js.
@@ -479,5 +481,106 @@ export const resetPassword = catchAsync(
       status: 'success',
       message: 'Password is reset. Please continue to login.',
     });
+  }
+);
+
+/**
+ * Method to signout users. If a key 'jwt' is
+ * present in cookie than it will be cleared and
+ * the user will be logged out.
+ */
+export const userSignOut = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // If cookie has no jwt, return error.
+    if (!req.cookies.jwt) {
+      next(new AppError('You are not logged in.', 400));
+    }
+    // assumes the cookie is in jwt
+    res.clearCookie('jwt');
+    res.status(200).json({
+      status: 'success',
+      message: 'You have been logged out successfully.',
+    });
+  }
+);
+
+/**
+ * Protect access to all routes, i.e if the user is loggedIn,
+ * then the user can access protected routes. This method checks the
+ * same. It starts by checking if the cookie has jwt, and if so,
+ * it is decoded to get the user_id back and the user is retrieved
+ * for the id, if user exists, then the jwt expiry date is checked with
+ * current date, and if this works, the password changed time is compared
+ * with the issued date. If all of this fail, then the user will
+ * be blocked from using the protected routes.
+ */
+// a sma
+// interface RequestWithUser extends Request{
+//   user: object;
+// }
+
+export const protect = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const jwt = req.cookies.jwt;
+
+    // 1. If no jwt, unauthorized.
+    if (!jwt)
+      return next(
+        new AppError('You must be logged in to access this resource.', 401)
+      );
+
+    const token = jwt.split(' ')[1]; // will always be 'Bearer <token>'
+
+    // 2. check for decoded payload
+    let payload: JwtPayload;
+    try {
+      payload = verify(token, JWT_SECRET_KEY) as JwtPayload;
+    } catch (err) {
+      return next(
+        new AppError('Invalid or expired token. Please log in again.', 401)
+      );
+    }
+
+    const { id, iat, exp } = payload;
+
+    // 3. If the payload has incomplete data, the jwt is invalid.
+    if (!id || !iat || !exp)
+      return next(
+        new AppError('Invalid token payload. Please log in again', 400)
+      );
+
+    // find a user by id.
+    const user = await findById(id);
+
+    // 4. If there is no user or user deleted their account,
+    // then block access.
+    if (user === undefined || user.length === 0) {
+      res.clearCookie('jwt');
+      return next(new AppError('User no longer exists.', 404));
+    }
+
+    const passwordChangedAt = new Date(user.pct).getTime() / 1000;
+    const now = Date.now() / 1000;
+
+    // 5. Check for token expire time.
+    if (now > exp) {
+      return next(
+        new AppError('Your session has expired. Please log in again.', 401)
+      );
+    }
+
+    // 6. Check if the user changed password after password
+    // was issued.
+    if (passwordChangedAt > iat) {
+      return next(
+        new AppError('Password was recently changed. Please log in again.', 401)
+      );
+    }
+    (req as Request & any).user = {
+      email: user.email,
+      firstName: user.firstname,
+      lastName: user.lastname,
+    }; // adding user to the request.
+    next();
   }
 );

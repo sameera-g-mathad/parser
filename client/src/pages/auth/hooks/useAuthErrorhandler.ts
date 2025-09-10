@@ -44,8 +44,6 @@ export const useAuthErrorHandler = (): ErrorHandler => {
             id: Date.now(),
           });
           if (redirectOnSuccess) redirectOnSuccess();
-        } else {
-          throw Error();
         }
       } catch (error: unknown) {
         // If the redirect function is specified.

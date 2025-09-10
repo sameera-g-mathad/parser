@@ -5,6 +5,7 @@ import authRouter from './routes/authRoute';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { AppError } from './utils/AppError';
+import { protect } from './controllers/authController';
 const app = express();
 
 // adds body to request
@@ -28,6 +29,22 @@ app.use(
     message: 'Too many requests from the used ip, try again after some time.',
   })
 );
+
+// check if the user is logged in
+app.use('/api/me', protect, (req: Request, res: Response) => {
+  // this retrieves only the email, firstName, and lastName
+  // to send back to frontend or use it any where needed.
+  const { email, firstName, lastName } = (req as Request & any).user;
+  res.status(200).json({
+    status: 'success',
+    user: {
+      email,
+      firstName,
+      lastName,
+    },
+    message: 'Authenticated!!',
+  });
+});
 
 // auth flow
 app.use('/api/auth', authRouter);

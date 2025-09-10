@@ -7,6 +7,7 @@ import {
   validateResetLink,
   userSignIn,
   getUsers,
+  userSignOut,
 } from '../controllers/authController';
 const router = Router();
 
@@ -19,6 +20,9 @@ router.route('/verify-user/:id').get(verifyAndCreateUser);
 
 // signIn users
 router.route('/sign-in').post(userSignIn);
+
+// signOut users
+router.route('/sign-out').get(userSignOut);
 
 // forgot password functionality
 router.route('/forgot-password').post(forgotPassword);

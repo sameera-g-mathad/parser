@@ -62,14 +62,25 @@ export const userExists = async (email: string): Promise<boolean> => {
 };
 
 /**
+ * Query method to check if the user exists.
+ * @param id Primary key of the user.
+ * @returns An object consisting of user details.
+ */
+export const findById = async (id: string): Promise<any> => {
+  const user = await pg.query(`SELECT * FROM users WHERE id=$1`, [id]);
+  return user.rows[0];
+};
+
+/**
  * Method to update the user password given an email.
  * @param email Email of the user.
  * @param password New password to be updated.
+ * @returns void
  */
 export const updateUserPassword = async (
   email: string,
   password: string
-): Promise<any> => {
+): Promise<void> => {
   await pg.query(
     `UPDATE users SET password=$1, pct=CURRENT_TIMESTAMP WHERE email=$2`,
     [password, email]
