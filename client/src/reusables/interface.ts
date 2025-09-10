@@ -1,4 +1,4 @@
-import * as RootInterface from './../interface';
+import * as RootInterface from '@/interface';
 
 type InputType = 'email' | 'password' | 'text';
 export type alertType = 'alert-success' | 'alert-danger';

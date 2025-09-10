@@ -1,5 +1,3 @@
-import React from "react";
-
 /**
  * 
  * @returns A commom JSX Component that is used as a fallback

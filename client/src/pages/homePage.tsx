@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { LogoSvg } from "../svgs";
+import { LogoSvg } from "@/svgs";
 
 /**
  * 

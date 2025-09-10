@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Alert, Button, Input, InputGroup } from "../../reusables";
+import { Alert, Button, Input, InputGroup } from "@/reusables";
+import { useAuth } from "@/context/authContext";
 import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
 
 /**
@@ -12,9 +13,18 @@ export const Signin = () => {
         email: '',
         password: '',
     })
+    const { login } = useAuth()
     const { isEmailValid } = useValidation();
     const { withErrorHandler } = useAuthErrorHandler()
     const navigate = useNavigate()
+
+    // A callback that will be used by 
+    // withErrorHandler to signIn the user.
+    // The login is used to set the user.
+    const onSuccessfulSignIn = () => {
+        login();
+        navigate('/app/dashboard')
+    }
 
     // Make a POST request to the server to login the user.
     const signIn = withErrorHandler(async () => {
@@ -36,7 +46,7 @@ export const Signin = () => {
         })
         return response;
         // redirect suddenly without waiting.
-    }, setAlertMsg, () => navigate('/app/dashboard'))
+    }, setAlertMsg, onSuccessfulSignIn)
 
     return <div>
         {state.alertMsg.status && <Alert className={state.alertMsg.type} message={state.alertMsg.message} key={state.alertMsg.id} />}
