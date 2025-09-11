@@ -36,7 +36,7 @@ export const Header = () => {
         return () => document.removeEventListener('mousedown', handleClickOutsideContainer)
     }, [])
 
-    return <div className="flex justify-between px-8 items-center bg-slate-100 shadow-sm row-span-1">
+    return <div className="flex justify-between sm:px-8 px-2 items-center bg-slate-100 shadow-sm row-span-1">
         {/* This displays the logo on the left side */}
         <div className="flex justify-center gap-3 items-center">
             <LogoSvg className="w-8 h-8" />
