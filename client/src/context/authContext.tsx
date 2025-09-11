@@ -1,5 +1,11 @@
 import { createContext, type PropsWithChildren, useContext, useEffect, useState } from "react";
 
+
+export type user = {
+    firstName: string,
+    lastName: string,
+    email: string,
+}
 /**
  * Interface for the auth context.
  * A status that is boolean and two
@@ -7,6 +13,11 @@ import { createContext, type PropsWithChildren, useContext, useEffect, useState 
  */
 export interface authContextInterface {
     status: boolean;
+    user: {
+        firstName: string,
+        lastName: string,
+        email: string,
+    }
     login: () => void;
     logout: () => void;
 }
@@ -14,6 +25,11 @@ export interface authContextInterface {
 // context creation
 const AuthContext = createContext<authContextInterface>({
     status: false,
+    user: {
+        firstName: '',
+        lastName: '',
+        email: '',
+    },
     login: () => false,
     logout: () => false,
 });
@@ -29,6 +45,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     // status is boolean, to avoid user or others from getting 
     // access to jwt.
     const [status, setStatus] = useState<boolean>(false);
+    const [user, setUser] = useState<user>({ firstName: '', lastName: '', email: '' })
     const [loading, setLoading] = useState<boolean>(true);
 
 
@@ -43,11 +60,14 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
                 }
             })
             const data = await response.json()
-            console.log(data)
             // If the server responds with a successful response
             // or no change in its response, then the status is true.
-            if (response.status === 200 || response.status === 304)
+            if (response.status === 200 || response.status === 304) {
+                setUser({
+                    ...data.user
+                })
                 setStatus(true)
+            }
         }
         catch (err) {
             setStatus(false);
@@ -56,6 +76,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
             setLoading(false)
         }
     }
+
 
     useEffect(() => {
         getStatus()
@@ -69,17 +90,39 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
     /**
      * Set the status to false.
+     * Makes a GET method to server to clear
+     * the cookie that is set.
      * @returns void
      */
-    const logout = () => setStatus(false);
-
-    return <AuthContext.Provider value={{ status, login, logout }}>
+    const logout = async () => {
+        try {
+            await fetch('/api/auth/sign-out',
+                {
+                    'method': 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+        }
+        catch (e) {
+            console.log(e)
+        }
+        finally {
+            // finally set the status to false
+            setStatus(false)
+            setLoading(false)
+        }
+    }
+    if (loading)
+        return null
+    return <AuthContext.Provider value={{ status, user, login, logout }}>
         {/* 
             Make sure to have loading to true so that the page
             doesn't reroutes to any route before getting the login
             status.
         */}
-        {!loading && children}
+        {children}
     </AuthContext.Provider>
 }
 
