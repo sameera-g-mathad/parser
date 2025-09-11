@@ -576,7 +576,9 @@ export const protect = catchAsync(
         new AppError('Password was recently changed. Please log in again.', 401)
       );
     }
-    (req as Request & any).user = {
+
+    req.user = {
+      id: user.id,
       email: user.email,
       firstName: user.firstname,
       lastName: user.lastname,

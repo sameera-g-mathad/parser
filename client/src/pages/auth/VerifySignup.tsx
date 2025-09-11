@@ -44,7 +44,7 @@ export const VerifySignup = () => {
     return <div>
         {
             state.alertMsg['status'] &&
-            <Alert className={state.alertMsg['type']} key={state.alertMsg['id']} message={state.alertMsg['message']} />
+            <Alert className={state.alertMsg['type']} message={state.alertMsg['message']} />
         }
         <span className="flex justify-center m-2">
             <span>Back to &nbsp;</span><Link className="text-blue-700" to="/auth/sign-in">Sign In</Link>

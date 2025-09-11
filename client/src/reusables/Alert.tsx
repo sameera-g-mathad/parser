@@ -8,5 +8,5 @@ import type { alertInterface } from "./interface";
  * @returns A JSX Component to display the alerts on screen.
  */
 export const Alert: React.FC<alertInterface> = ({ className, message }) => {
-    return <div className={`alert border px-8 absolute z-10 top-3 left-1/2 transform -translate-x-1/2  p-2 rounded-lg ${className}`}>{message}</div>;
+    return <div className={`alert border px-8 absolute z-10 top-3 left-1/2 transform -translate-x-1/2  p-2 rounded-lg ${className}`} key={Date.now()}>{message}</div>;
 };

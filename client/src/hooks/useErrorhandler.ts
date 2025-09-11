@@ -16,18 +16,18 @@ export const useErrorHandler = (): ErrorHandler => {
    * @returns A function wrapped around a try catch block
    * @returns Promise<void>
    */
-  const withErrorHandler = (
-    callback: () => Promise<Response | void>,
+  const withErrorHandler = <T extends any[]>(
+    callback: (...args: T) => Promise<Response | void>,
     setAlertMsg: (_alertMsg: alertMsgInterface) => void,
     redirectOnSuccess: (() => void) | null = null,
     redirectOnError: (() => void) | null = null
-  ): (() => Promise<void>) => {
+  ): ((...args: T) => Promise<void>) => {
     // Returns a function wrapped around a try catch to
     // handle errors properly.
-    return async () => {
+    return async (...args: T) => {
       try {
         // get the response from the server.
-        const response = await callback();
+        const response = await callback(...args);
         // Response can be void type aswell.
         if (response instanceof Response) {
           const data = await response.json();
@@ -41,7 +41,6 @@ export const useErrorHandler = (): ErrorHandler => {
             type: 'alert-success',
             message: data.message,
             status: true,
-            id: Date.now(),
           });
           if (redirectOnSuccess) redirectOnSuccess();
         }
@@ -57,7 +56,6 @@ export const useErrorHandler = (): ErrorHandler => {
           type: 'alert-danger',
           message,
           status: true,
-          id: Date.now(),
         });
       }
     };
