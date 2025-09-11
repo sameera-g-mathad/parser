@@ -1,4 +1,5 @@
 import * as RootInterface from '@/interface';
+import type { ChangeEvent } from 'react';
 
 type InputType = 'email' | 'password' | 'text';
 export type alertType = 'alert-success' | 'alert-danger';
@@ -10,6 +11,11 @@ export interface alertInterface extends RootInterface.className {
 
 export interface buttonInterface extends RootInterface.className {
   callback: () => void | Promise<void>;
+}
+
+export interface fileInterface extends RootInterface.className {
+  accept: string;
+  callback: (file: FileList) => void;
 }
 
 export interface inputGroupInterface extends RootInterface.className {

@@ -1,9 +1,10 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
-import authRouter from './routes/authRoute';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import authRouter from './routes/authRoute';
+import appRouter from './routes/appRoute';
 import { AppError } from './utils/AppError';
 import { protect } from './controllers/authController';
 const app = express();
@@ -11,10 +12,10 @@ const app = express();
 // adds body to request
 app.use(express.json());
 
-//
+// For parsing cookies.
 app.use(cookieParser());
 
-//
+// For handling cors related issues.
 app.use(cors());
 
 // logs requests, Remove during prod.
@@ -30,24 +31,12 @@ app.use(
   })
 );
 
-// check if the user is logged in
-app.use('/api/me', protect, (req: Request, res: Response) => {
-  // this retrieves only the email, firstName, and lastName
-  // to send back to frontend or use it any where needed.
-  const { email, firstName, lastName } = (req as Request & any).user;
-  res.status(200).json({
-    status: 'success',
-    user: {
-      email,
-      firstName,
-      lastName,
-    },
-    message: 'Authenticated!!',
-  });
-});
-
 // auth flow
 app.use('/api/auth', authRouter);
+
+// app flow, protect is added to check jwt for logged
+// in users.
+app.use('/api/app', protect, appRouter);
 
 // for all the invalid urls.
 app.use(/.*/, (req: Request, _res: Response, next: NextFunction) => {
