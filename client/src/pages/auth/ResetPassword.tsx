@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Alert, Button, Input, InputGroup } from "@/reusables";
-import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
+import { useCustomReducer, useErrorHandler, useValidation } from "@/hooks";
 import { useLocation, useNavigate } from "react-router-dom";
 
 /**
@@ -8,11 +8,11 @@ import { useLocation, useNavigate } from "react-router-dom";
  * @returns A JSX component to reset the password of the user. Checks if the url is valid and sets the password.
  */
 export const ResetPassword = () => {
-    const { state, setAlertMsg, setFieldWithValue } = useAuthReducer({ password: '', confirmPassword: '' })
+    const { state, setAlertMsg, setFieldWithValue } = useCustomReducer({ password: '', confirmPassword: '' })
     // Needed to get the token present in the user.
     const location = useLocation();
     const navigate = useNavigate();
-    const { withErrorHandler } = useAuthErrorHandler()
+    const { withErrorHandler } = useErrorHandler()
     const { isPasswordSame, isPasswordValid } = useValidation();
 
 

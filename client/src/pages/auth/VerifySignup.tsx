@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { useAuthReducer, useAuthErrorHandler } from "./hooks";
+import { useCustomReducer, useErrorHandler } from "@/hooks";
 import { Alert } from "@/reusables";
 
 /**
@@ -13,8 +13,8 @@ export const VerifySignup = () => {
     // in the url
     const location = useLocation();
     const navigate = useNavigate()
-    const { withErrorHandler } = useAuthErrorHandler();
-    const { state, setAlertMsg } = useAuthReducer({ messge: '' })
+    const { withErrorHandler } = useErrorHandler();
+    const { state, setAlertMsg } = useCustomReducer({ messge: '' })
 
     // To redirect users on successful verification
     const onSuccess = () => setTimeout(() => navigate('/auth/sign-in'), 3000)

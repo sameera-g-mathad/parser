@@ -1,5 +1,4 @@
 import * as RootInterface from '@/interface';
-import type { ChangeEvent } from 'react';
 
 type InputType = 'email' | 'password' | 'text';
 export type alertType = 'alert-success' | 'alert-danger';

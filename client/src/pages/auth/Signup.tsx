@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Alert, Button, Input, InputGroup } from "@/reusables";
-import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
+import { useCustomReducer, useErrorHandler, useValidation } from "@/hooks";
 
 
 /**
@@ -8,14 +8,14 @@ import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
  * @returns A JSX component that allows users to signup to the parser website.
  */
 export const Signup = () => {
-    const { state, setAlertMsg, setFieldWithValue } = useAuthReducer({
+    const { state, setAlertMsg, setFieldWithValue } = useCustomReducer({
         firstName: '',
         lastName: '',
         email: '',
         password: '',
         confirmPassword: '',
     })
-    const { withErrorHandler } = useAuthErrorHandler()
+    const { withErrorHandler } = useErrorHandler()
 
     const { isEmailValid, isPasswordSame, isPasswordValid } = useValidation();
 
@@ -28,7 +28,7 @@ export const Signup = () => {
         }
         // check if email is valid.
         if (!isEmailValid(email)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
+            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, .dev or .org domain.', status: true, id: Date.now() })
         }
 
         // check if password is valid.

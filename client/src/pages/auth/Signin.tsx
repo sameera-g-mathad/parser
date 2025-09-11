@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Alert, Button, Input, InputGroup } from "@/reusables";
 import { useAuth } from "@/context/authContext";
-import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
+import { useCustomReducer, useErrorHandler, useValidation } from "@/hooks";
 
 /**
  * 
@@ -9,13 +9,13 @@ import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
  * into parser application
  */
 export const Signin = () => {
-    const { state, setAlertMsg, setFieldWithValue } = useAuthReducer({
+    const { state, setAlertMsg, setFieldWithValue } = useCustomReducer({
         email: '',
         password: '',
     })
     const { login } = useAuth()
     const { isEmailValid } = useValidation();
-    const { withErrorHandler } = useAuthErrorHandler()
+    const { withErrorHandler } = useErrorHandler()
     const navigate = useNavigate()
 
     // A callback that will be used by 
@@ -34,7 +34,7 @@ export const Signin = () => {
         }
 
         if (!isEmailValid(email)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
+            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, .dev or .org domain.', status: true, id: Date.now() })
         }
 
         const response = await fetch('/api/auth/sign-in', {

@@ -6,6 +6,7 @@ import { FileUpload } from "@/reusables";
  * allow users to upload files.
  */
 export const Upload = () => {
+
     const uploadFile = async (files: FileList) => {
         try {
             // This ensures multiple files 
@@ -18,7 +19,8 @@ export const Upload = () => {
             const response = await fetch('/api/app/upload', {
                 method: 'POST',
                 body: formData
-            })
+            }
+            )
         }
         catch (error) {
             console.log(error)

@@ -1,6 +1,6 @@
 import React, { type PropsWithChildren } from "react";
 import type { className } from "@/interface";
-import type { authFormInterface } from "./interface";
+import type { authFormInterface } from "@/interface";
 import { LogoSvg } from "@/svgs";
 
 /**

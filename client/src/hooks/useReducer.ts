@@ -1,5 +1,5 @@
 import { useReducer } from 'react';
-import type { alertMsgInterface, Reducer, ReducerType } from '../interface';
+import type { alertMsgInterface, Reducer, ReducerType } from '@/interface';
 
 // file to generailize the use of useReducer.
 
@@ -34,7 +34,7 @@ const reducer = <T>(state: ReducerType<T>, payload: payloadActions) => {
  * @example SignUp: {email:'', password: '', confirmPassword: '', firstName: '', lastName: ''}.
  * @example SignIn: {email: '', password: ''}
  */
-export const useAuthReducer = <T extends object>(
+export const useCustomReducer = <T extends object>(
   initialState: T
 ): Reducer<T> => {
   const [state, dispatch] = useReducer(reducer, {
