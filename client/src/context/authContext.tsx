@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     // is logged in or not.
     const getStatus = async () => {
         try {
-            const response = await fetch('/api/me', {
+            const response = await fetch('/api/app/me', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

@@ -1,10 +1,7 @@
 import { type PropsWithChildren } from "react";
-import type { className } from "@/interface";
+import type { fileInterface } from "./interface";
 
-export interface fileInterface {
-    accept: string,
-    callback: () => void;
-}
+
 
 /**
  * 
@@ -12,11 +9,17 @@ export interface fileInterface {
  * @param className Tailwind properties in the string format.
  * @returns A JSX Component that is useful for uploading files.
  */
-export const FileUpload: React.FC<PropsWithChildren & className> = ({ children, className }) => {
+export const FileUpload: React.FC<PropsWithChildren & fileInterface> = ({ children, className, accept, callback }) => {
     return <div>
         <label className={className} htmlFor="upload">
             {children}
         </label>
-        <input id='upload' className="hidden" type="file" accept=".pdf" />
+        <input onChange={(e) => {
+            // check if the files are present.
+            // i.e the event returns null aswell.
+            let fileList = e.target.files;
+            if (fileList)
+                callback(fileList)
+        }} id='upload' className="hidden" type="file" accept={accept} />
     </div>;
 };

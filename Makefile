@@ -59,7 +59,7 @@ clean:
 
 # ===== Git Commands =====
 fetch:
-	git fetch origin $(branch)
+	git fetch origin $(b)
 
 
 commit:

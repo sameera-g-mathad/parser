@@ -47,6 +47,7 @@ services:
         condition: service_healthy
 
     env_file:
+      - ./.env
       - ./api/.env
 
     environment:
@@ -80,6 +81,7 @@ services:
       - REDISURL=redis://redis:6379
 
     env_file:
+      - ./.env
       - ./worker/.env
 
     volumes:
