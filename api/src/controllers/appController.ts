@@ -1,7 +1,22 @@
 import { NextFunction, Request, Response } from 'express';
+import {
+  S3Client,
+  PutObjectCommand,
+  PutObjectCommandInput,
+  PutObjectCommandOutput,
+} from '@aws-sdk/client-s3';
 import { AppError, catchAsync } from '../utils';
 import { redisPub } from '../db';
-import { searchUser } from '../models/useModel';
+
+// create a s3 client with the
+// region and credentials.
+const s3 = new S3Client({
+  region: process.env.AWS_REGION!,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY!,
+    secretAccessKey: process.env.AWS_SECRET_KEY!,
+  },
+});
 
 /**
  * @returns A response that the user is logged In along with user
@@ -24,19 +39,48 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
 });
 
 /**
- * @returns A response after receiving the file succesfully.
- * ---- Need to implement.
+ * Method to upload files into s3 bucket and start the
+ * embedding process. Max size allowed is 50Mb.
  */
 export const uploadFile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // get the file name.
     const file = req.file;
+
+    // 1. If there is no file, return error.
     if (!file) {
       return next(new AppError('No file uploaded. Please attach a file.', 400));
     }
 
+    // Set the filename, used format: <user_id>_<current_date>_<filename>.
+    const fileName = `${req.user.id}_${Date.now()}_${file.originalname}`;
+
+    // base bucket configuration.
+    const bucketOptions: PutObjectCommandInput = {
+      Bucket: process.env.AWS_BUCKET!,
+      Key: fileName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    };
+
+    // upload file to aws s3.
+    // try the process, to know if s3 thows error
+    // or was it a success.
+    try {
+      const putCommand = new PutObjectCommand(bucketOptions);
+      await s3.send(putCommand);
+    } catch (error) {
+      // 3. Throw error if the file upload to s3 failed.
+      return next(
+        new AppError('Something went wrong while uploading your file.', 500)
+      );
+    }
+
+    // return a succesful response.
     res.status(200).json({
       status: 'success',
-      message: 'Upload request accepted. Your file is being processed.',
+      message:
+        'File uploaded successfully. Embeddings generation in progress. Access will be granted once processing is complete.',
     });
   }
 );
