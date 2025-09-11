@@ -4,7 +4,6 @@ export interface alertMsgInterface {
   type: alertType;
   message: string;
   status: boolean;
-  id: number;
 }
 
 // Return type of useValidation.
@@ -31,12 +30,12 @@ export type Reducer<T> = {
 // withErrorHandler has a callback, setAlertMsg and
 // redirectOnError and redirectOnSuccess parameters to be passed.
 export type ErrorHandler = {
-  withErrorHandler: (
-    callback: () => Promise<Response | void>,
+  withErrorHandler: <T extends any[]>(
+    callback: (...args: T) => Promise<Response | void>,
     setAlertMsg: (_alertMsg: alertMsgInterface) => void,
     redirectOnSuccess?: (() => void) | null,
     redirectOnError?: (() => void) | null
-  ) => () => Promise<void>;
+  ) => (...args: T) => Promise<void>;
 };
 
 export interface className {
