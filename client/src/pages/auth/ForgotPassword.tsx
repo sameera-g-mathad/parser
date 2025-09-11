@@ -1,13 +1,13 @@
 import { Alert, Button, Input, InputGroup } from "@/reusables";
-import { useAuthReducer, useAuthErrorHandler, useValidation } from "./hooks";
+import { useCustomReducer, useErrorHandler, useValidation } from "@/hooks";
 /**
  * 
  * @returns A JSX component for the user to request password reset.
  */
 export const ForgotPassword = () => {
-    const { state, setAlertMsg, setFieldWithValue } = useAuthReducer({ email: '' })
+    const { state, setAlertMsg, setFieldWithValue } = useCustomReducer({ email: '' })
     const { isEmailValid } = useValidation();
-    const { withErrorHandler } = useAuthErrorHandler()
+    const { withErrorHandler } = useErrorHandler()
 
     /**
      * Method to send email to reset password to the user.

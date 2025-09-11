@@ -1,4 +1,4 @@
-import type { alertMsgInterface, ErrorHandler } from '../interface';
+import type { alertMsgInterface, ErrorHandler } from '@/interface';
 
 /**
  * A common method to handle errors. Has a single
@@ -6,7 +6,7 @@ import type { alertMsgInterface, ErrorHandler } from '../interface';
  * method.
  * @returns
  */
-export const useAuthErrorHandler = (): ErrorHandler => {
+export const useErrorHandler = (): ErrorHandler => {
   /**
    *
    * @param callback A fucnction meant to fetch some data from the server. Needs to return a Rensponse object.
