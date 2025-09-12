@@ -16,7 +16,7 @@ export const ForgotPassword = () => {
     const forgotPassword = withErrorHandler(async () => {
         // validate email.
         if (!isEmailValid(state.email)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, or .org domain.', status: true, id: Date.now() })
         }
 
         // Make a POST request to receive a reset email.
@@ -31,7 +31,7 @@ export const ForgotPassword = () => {
     }, setAlertMsg)
 
     return <div>
-        {state.alertMsg['status'] && <Alert className={state.alertMsg.type} message={state.alertMsg.message} />}
+        {state.alertMsg['status'] && <Alert className={state.alertMsg.type} key={state.alertMsg.id} message={state.alertMsg.message} />}
         <InputGroup className="py-2" label="email">
             <Input callback={(email) => setFieldWithValue('email', email)} className="auth-input w-80!" type="email" placeholder="Example@email.com" value={state.email} />
         </InputGroup>

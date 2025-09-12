@@ -4,6 +4,7 @@ export interface alertMsgInterface {
   type: alertType;
   message: string;
   status: boolean;
+  id: number;
 }
 
 // Return type of useValidation.

@@ -3,8 +3,8 @@ import {
   S3Client,
   PutObjectCommand,
   PutObjectCommandInput,
-  PutObjectCommandOutput,
 } from '@aws-sdk/client-s3';
+import { insertUpload } from '../models/uploadModel';
 import { AppError, catchAsync } from '../utils';
 import { redisPub } from '../db';
 
@@ -75,6 +75,15 @@ export const uploadFile = catchAsync(
         new AppError('Something went wrong while uploading your file.', 500)
       );
     }
+
+    // Insert the filename into uploads table
+    const upload = await insertUpload(req.user.id, fileName);
+
+    // upload_key format to publish event: upload:<unique_id_in_db>:<filename>
+    const upload_key = `upload:${upload.id}:${fileName}`;
+
+    // publish the event for redis to pick up.
+    await redisPub.publish('processFile', upload_key);
 
     // return a succesful response.
     res.status(200).json({

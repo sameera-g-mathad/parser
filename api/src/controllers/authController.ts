@@ -4,7 +4,7 @@ import { hash, compare } from 'bcryptjs';
 import { sign, verify, JwtPayload } from 'jsonwebtoken';
 import { redisClient, redisPub } from '../db';
 import {
-  insert,
+  insertUser,
   selectAll,
   userExists,
   searchUser,
@@ -214,7 +214,7 @@ export const verifyAndCreateUser = catchAsync(
       );
 
     // 3. Create the user in the db and return the response.
-    const newUser = await insert(firstName, lastName, email, password);
+    const newUser = await insertUser(firstName, lastName, email, password);
     res.status(201).json({
       status: 'success',
       message:
