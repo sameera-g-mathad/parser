@@ -50,21 +50,13 @@ services:
       - ./.env
       - ./api/.env
 
-    environment:
-      - PGDATABASE=postgres
-      - PGHOST=postgres
-      - PGPASSWORD=postgres
-      - PGPORT=5432
-      - PGUSER=postgres
-      - PORT=4000
-      - REDISURL=redis://redis:6379
-
     ports:
       - 4000:4000
 
     volumes:
       - /app/node_modules
       - ./api:/app
+      - shared_uploads:/shared # api and worker will share a volume to process uploaded files.
 
   # worker container to handle tasks,
   # such as sending emails, creating embeddings.
@@ -77,8 +69,8 @@ services:
       redis:
         condition: service_healthy
 
-    environment:
-      - REDISURL=redis://redis:6379
+      postgres:
+        condition: service_healthy
 
     env_file:
       - ./.env
@@ -87,6 +79,7 @@ services:
     volumes:
       - /app/node_modules
       - ./worker:/app
+      - shared_uploads:/shared # api and worker will share a volume to process uploaded files.
 
   postgres:
     image: postgres:17-alpine
@@ -129,3 +122,4 @@ services:
 
 volumes:
   postgres_db:
+  shared_uploads: # this will help in storing uploads from the server.

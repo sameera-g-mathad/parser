@@ -47,7 +47,7 @@ export const createTables = async () => {
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES USERS(ID) ON DELETE CASCADE NOT NULL,
     file_name VARCHAR(100) NOT NULL,
-    status VARCHAR(50) NOT NULL CHECK(status IN('processing', 'active')),
+    status VARCHAR(50) NOT NULL CHECK(status IN('processing', 'active', 'failed')),
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`);

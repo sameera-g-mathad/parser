@@ -10,7 +10,7 @@ import {
   searchUser,
   updateUserPassword,
   findById,
-} from '../models/useModel';
+} from '../models/userModel';
 import { AppError, catchAsync } from '../utils';
 
 const SIGN_UP_VERIFICATION_KEY = `user:token:`;

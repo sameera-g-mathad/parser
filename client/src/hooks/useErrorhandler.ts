@@ -41,6 +41,7 @@ export const useErrorHandler = (): ErrorHandler => {
             type: 'alert-success',
             message: data.message,
             status: true,
+            id: Date.now(),
           });
           if (redirectOnSuccess) redirectOnSuccess();
         }
@@ -56,6 +57,7 @@ export const useErrorHandler = (): ErrorHandler => {
           type: 'alert-danger',
           message,
           status: true,
+          id: Date.now(),
         });
       }
     };

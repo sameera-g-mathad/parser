@@ -1,12 +1,11 @@
 import { type PropsWithChildren } from "react";
 import type { fileInterface } from "./interface";
 
-
-
 /**
- * 
+ *
  * @param children Children to pass into the FileUpload, any svgs or text 
  * @param className Tailwind properties in the string format.
+ * @note - Won't upload the same file consequtive times.
  * @returns A JSX Component that is useful for uploading files.
  */
 export const FileUpload: React.FC<PropsWithChildren & fileInterface> = ({ children, className, accept, callback }) => {

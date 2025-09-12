@@ -1,12 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import {
-  S3Client,
-  PutObjectCommand,
-  PutObjectCommandInput,
-} from '@aws-sdk/client-s3';
+import { writeFile } from 'fs';
+import { S3Client } from '@aws-sdk/client-s3';
 import { insertUpload } from '../models/uploadModel';
 import { AppError, catchAsync } from '../utils';
-import { redisPub } from '../db';
+import { redisClient, redisPub } from '../db';
 
 // create a s3 client with the
 // region and credentials.
@@ -39,8 +36,9 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
 });
 
 /**
- * Method to upload files into s3 bucket and start the
- * embedding process. Max size allowed is 50Mb.
+ * Method to upload a record to uploads table with
+ * filename and status as processing. Later publish
+ * the event to worker. File is uploaded by multer.
  */
 export const uploadFile = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -53,34 +51,25 @@ export const uploadFile = catchAsync(
     }
 
     // Set the filename, used format: <user_id>_<current_date>_<filename>.
-    const fileName = `${req.user.id}_${Date.now()}_${file.originalname}`;
-
-    // base bucket configuration.
-    const bucketOptions: PutObjectCommandInput = {
-      Bucket: process.env.AWS_BUCKET!,
-      Key: fileName,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    };
-
-    // upload file to aws s3.
-    // try the process, to know if s3 thows error
-    // or was it a success.
-    try {
-      const putCommand = new PutObjectCommand(bucketOptions);
-      await s3.send(putCommand);
-    } catch (error) {
-      // 3. Throw error if the file upload to s3 failed.
-      return next(
-        new AppError('Something went wrong while uploading your file.', 500)
-      );
-    }
+    const fileName = file.filename;
+    const path = file.path;
 
     // Insert the filename into uploads table
     const upload = await insertUpload(req.user.id, fileName);
 
-    // upload_key format to publish event: upload:<unique_id_in_db>:<filename>
-    const upload_key = `upload:${upload.id}:${fileName}`;
+    // upload_key format to publish event: upload:<unique_id_in_db>
+    const upload_key = `upload:${upload.id}`;
+
+    // store all the details of a file in redis hash
+    await redisClient.hSet(upload_key, {
+      fileName,
+      path,
+      mimetype: file.mimetype,
+    });
+
+    // Expire the key if the worker doesn't pick
+    // it up.
+    await redisClient.expire(upload_key, 300);
 
     // publish the event for redis to pick up.
     await redisPub.publish('processFile', upload_key);
@@ -89,7 +78,7 @@ export const uploadFile = catchAsync(
     res.status(200).json({
       status: 'success',
       message:
-        'File uploaded successfully. Embeddings generation in progress. Access will be granted once processing is complete.',
+        'Your request has been received and is being processed. You will be notified once it is complete.',
     });
   }
 );
