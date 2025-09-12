@@ -1,4 +1,4 @@
-import { redisClient } from './db';
+import { redisClient, redisSub } from './db';
 import { transporter } from './transporter';
 import { getTemplate } from './getTemplate';
 import { Email } from './templates';
@@ -22,9 +22,7 @@ const sendEmail = async (to: string, template: string, subject: string): Promise
   console.log('Email sent!!')
 };
 
-// Create a redis duplicate to listen to publishing events.
-const redisSub = redisClient.duplicate();
-redisSub.connect();
+
 
 // Listen to 'signup' event.
 redisSub.subscribe('signup', async (channel, _message) => {

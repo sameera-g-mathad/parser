@@ -24,21 +24,21 @@ export const Signup = () => {
 
         // check if any field is null.
         if (!firstName || !lastName || !email || !password || !confirmPassword) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
         }
         // check if email is valid.
         if (!isEmailValid(email)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, .dev or .org domain.', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, .dev or .org domain.', status: true, id: Date.now() })
         }
 
         // check if password is valid.
         if (!isPasswordValid(password)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true, id: Date.now() })
         }
 
         // check if passwords match
         if (!isPasswordSame(password, confirmPassword)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
         }
 
         // make a POST request.
@@ -54,7 +54,7 @@ export const Signup = () => {
     }, setAlertMsg)
 
     return <div className="m-1">
-        {state.alertMsg['status'] && <Alert className={state.alertMsg['type']} message={state.alertMsg['message']} />}
+        {state.alertMsg['status'] && <Alert className={state.alertMsg['type']} key={state.alertMsg['id']} message={state.alertMsg['message']} />}
         <div className="flex justify-evenly">
 
             <InputGroup label="first name">

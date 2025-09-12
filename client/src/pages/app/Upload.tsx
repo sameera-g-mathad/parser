@@ -31,6 +31,6 @@ export const Upload = () => {
         <FileUpload accept=".pdf" callback={(files) => uploadFile(files)}>
             <span className="bg-indigo-500 p-2 text-white rounded-full cursor-pointer">File Upload</span>
         </FileUpload>
-        {state.alertMsg['status'] && <Alert className={state.alertMsg['type']} message={state.alertMsg['message']} />}
+        {state.alertMsg['status'] && <Alert className={state.alertMsg['type']} message={state.alertMsg['message']} key={state.alertMsg['id']} />}
     </div>
 };

@@ -30,11 +30,11 @@ export const Signin = () => {
     const signIn = withErrorHandler(async () => {
         const { email, password } = state;
         if (!email || !password) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
         }
 
         if (!isEmailValid(email)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, .dev or .org domain.', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Please enter a valid email address with .edu, .com, .dev or .org domain.', status: true, id: Date.now() })
         }
 
         const response = await fetch('/api/auth/sign-in', {
@@ -49,7 +49,7 @@ export const Signin = () => {
     }, setAlertMsg, onSuccessfulSignIn)
 
     return <div>
-        {state.alertMsg.status && <Alert className={state.alertMsg.type} message={state.alertMsg.message} />}
+        {state.alertMsg.status && <Alert className={state.alertMsg.type} message={state.alertMsg.message} key={state.alertMsg.id} />}
         <InputGroup className="py-2" label="email">
             <Input callback={(email) => setFieldWithValue('email', email)} className="auth-input w-80!" type="email" value={state.email} placeholder="Example@email.com" />
         </InputGroup>

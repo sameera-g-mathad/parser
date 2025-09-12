@@ -1,6 +1,6 @@
 import { redisClient } from './db';
 import './emailHandler';
-
+import './processFile';
 // Create a redis client.
 const connect = async () => {
   await redisClient.connect();

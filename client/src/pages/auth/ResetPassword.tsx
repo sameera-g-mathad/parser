@@ -43,16 +43,16 @@ export const ResetPassword = () => {
 
         // check if all fields are present
         if (!password || !confirmPassword) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Please complete all required fields.', status: true, id: Date.now() })
         }
 
         // check if the password is valid.
         if (!isPasswordValid(password)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Password must have atleast one Uppercase, Lowercase and a number and and in range[15, 30] characters', status: true, id: Date.now() })
         }
         // check if passwords match.
         if (!isPasswordSame(password, confirmPassword)) {
-            return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true })
+            return setAlertMsg({ type: 'alert-danger', message: 'Your passwords don’t match. Please try again.', status: true, id: Date.now() })
         }
         const response = await fetch(`/api${location.pathname}`, {
             method: 'POST',
@@ -66,7 +66,7 @@ export const ResetPassword = () => {
     }, setAlertMsg)
 
     return <div>
-        {state.alertMsg['status'] && <Alert className={state.alertMsg.type} message={state.alertMsg.message} />}
+        {state.alertMsg['status'] && <Alert className={state.alertMsg.type} key={state.alertMsg.id} message={state.alertMsg.message} />}
         <InputGroup className="py-2" label="new password">
             <Input callback={(password) => setFieldWithValue('password', password)} className="auth-input w-80!" type="password" placeholder="At least 15 length" value={state.password} />
         </InputGroup>

@@ -18,7 +18,7 @@ interface user {
  * @param email string, email of the user
  * @param password string, password of the user
  */
-export const insert = async (
+export const insertUser = async (
   firstName: string,
   lastName: string,
   email: string,
