@@ -10,6 +10,7 @@ export const Upload = () => {
     const { state, setAlertMsg } = useCustomReducer({});
     const { withErrorHandler } = useErrorHandler()
     const uploadFile = withErrorHandler(async (files: FileList) => {
+        console.log(files.length)
         // This ensures multiple files 
         // are not uploaded.
         if (files.length > 1)
@@ -31,6 +32,7 @@ export const Upload = () => {
         <FileUpload accept=".pdf" callback={(files) => uploadFile(files)}>
             <span className="bg-indigo-500 p-2 text-white rounded-full cursor-pointer">File Upload</span>
         </FileUpload>
-        {state.alertMsg['status'] && <Alert className={state.alertMsg['type']} message={state.alertMsg['message']} key={state.alertMsg['id']} />}
+        {/*Overiding style here. */}
+        {state.alertMsg['status'] && <Alert className="alert-info" message={state.alertMsg['message']} key={state.alertMsg['id']} />}
     </div>
 };

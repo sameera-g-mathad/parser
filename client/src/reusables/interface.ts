@@ -1,7 +1,7 @@
 import * as RootInterface from '@/interface';
 
 type InputType = 'email' | 'password' | 'text';
-export type alertType = 'alert-success' | 'alert-danger';
+export type alertType = 'alert-success' | 'alert-danger' | 'alert-info';
 
 export interface alertInterface extends RootInterface.className {
   message: string;
