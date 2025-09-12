@@ -5,7 +5,9 @@ import {
   PutObjectCommand,
   PutObjectCommandInput,
 } from '@aws-sdk/client-s3';
-import { Document } from '@langchain/core/documents';
+import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
+import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
+import { OpenAIEmbeddings } from '@langchain/openai';
 
 // create a s3 client with the
 // region and credentials.
@@ -15,6 +17,16 @@ const s3 = new S3Client({
     accessKeyId: process.env.AWS_ACCESS_KEY!,
     secretAccessKey: process.env.AWS_SECRET_KEY!,
   },
+});
+
+const openAIEmbeddings = new OpenAIEmbeddings({
+  openAIApiKey: process.env.Open_Api_Key!,
+});
+
+// Create a text splitter once for now.
+const textSplitter = new RecursiveCharacterTextSplitter({
+  chunkOverlap: 100,
+  chunkSize: 512,
 });
 
 /**
@@ -60,25 +72,36 @@ const uploadToS3 = async (
   return true;
 };
 
+// use langchain to create embeddings.
+const createEmbeddings = async (path: string, upload_id: string) => {
+  const loader = new PDFLoader(path, { splitPages: false });
+  const fileContent = await loader.load();
+  const docs = await textSplitter.splitDocuments(fileContent);
+  for (let doc of docs) {
+    doc.id = upload_id;
+  }
+};
+
 redisSub.subscribe('processFile', async (channel, message) => {
   try {
     // get required info from the redis client
     const { fileName, path, mimetype } = await redisClient.hGetAll(channel);
     const id = channel.split(':')[1];
     // 1. Try to upload file to s3.
-    const s3Status = await uploadToS3(fileName, path, mimetype);
+    // const s3Status = await uploadToS3(fileName, path, mimetype);
 
-    // 2. if the upload was a fail stop the process
-    // and update the uploads table.
-    if (!s3Status) {
-      updateUploads(id, 'failed');
-      throw Error('Upload to s3 failed.');
-    }
+    // // 2. if the upload was a fail stop the process
+    // // and update the uploads table.
+    // if (!s3Status) {
+    //   updateUploads(id, 'failed');
+    //   throw Error('Upload to s3 failed.');
+    // }
     // 3. Need to embed text.
-
+    const embStatus = createEmbeddings(path, id);
+    console.log('working');
     // Finally update the row as active
     // for usage.
-    updateUploads(id, 'active');
+    // updateUploads(id, 'active');
   } catch (error) {
     console.log((error as Error).message);
   }

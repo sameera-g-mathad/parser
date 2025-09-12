@@ -1,5 +1,5 @@
 import app from './app';
-import { createTables, pg, redisClient } from './db';
+import { pg, redisClient } from './db';
 
 const connect = async () => {
   try {
@@ -12,8 +12,6 @@ const connect = async () => {
 
     // pg connected succesfully.
     console.log('Connected to Postgres DB!!!');
-
-    await createTables();
 
     console.log(
       (
