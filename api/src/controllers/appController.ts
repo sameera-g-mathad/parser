@@ -58,7 +58,11 @@ export const uploadFile = catchAsync(
     const path = file.path;
 
     // Insert the filename into uploads table
-    const upload = await insertUpload(req.user.id, fileName);
+    const upload = await insertUpload(
+      req.user.id,
+      fileName,
+      req.file?.originalname!
+    );
 
     // upload_key format to publish event: upload:<unique_id_in_db>
     const upload_key = `upload:${upload.id}`;
@@ -71,6 +75,7 @@ export const uploadFile = catchAsync(
       email,
       firstName,
       lastName,
+      originalName: req.file?.originalname!,
     });
 
     // Expire the key if the worker doesn't pick

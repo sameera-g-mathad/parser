@@ -138,10 +138,11 @@ const createEmbeddings = async (
 };
 
 redisSub.subscribe('processFile', async (channel, _message) => {
-  const { fileName, path, mimetype, email, firstName, lastName } =
+  const { fileName, path, mimetype, email, firstName, lastName, originalName } =
     await redisClient.hGetAll(channel);
   // get required info from the redis client
   const id = channel.split(':')[1];
+  // original name to send it to users.
   try {
     // 1. Try to upload file to s3.
     const s3Status = await uploadToS3(fileName, path, mimetype);
@@ -158,7 +159,6 @@ redisSub.subscribe('processFile', async (channel, _message) => {
       updateUploads(id, 'failed');
       throw Error('Upload to s3 failed.');
     }
-
     // Finally update the row as active
     // for usage.
     updateUploads(id, 'active');
@@ -166,7 +166,7 @@ redisSub.subscribe('processFile', async (channel, _message) => {
       firstName,
       lastName,
       'Your PDF has been processed!',
-      'Good news 🎉 Your uploaded PDF was processed successfully and is now available in your dashboard.',
+      `Good news 🎉 Your uploaded PDF [${originalName}] was processed successfully and is now available in your dashboard.`,
       'http://localhost:3050/app/dashboard',
       'Go to Dashboard',
       '#2dd4bf'
@@ -177,7 +177,7 @@ redisSub.subscribe('processFile', async (channel, _message) => {
       firstName,
       lastName,
       'There was an issue with your upload',
-      'Unfortunately, we couldn’t process your uploaded PDF. Please try again with a valid file format or check that the file is not corrupted.',
+      `Unfortunately, we couldn’t process your uploaded PDF [${originalName}]. Please try again with a valid file format or check that the file is not corrupted.`,
       'http://localhost:3050/app/dashboard',
       'Go to Dashboard',
       '#f87171'
