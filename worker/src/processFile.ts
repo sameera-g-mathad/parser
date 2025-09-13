@@ -159,9 +159,11 @@ redisSub.subscribe('processFile', async (channel, _message) => {
       updateUploads(id, 'failed');
       throw Error('Upload to s3 failed.');
     }
-    // Finally update the row as active
+    // 4. Finally update the row as active
     // for usage.
     updateUploads(id, 'active');
+
+    // 5. Send a succesfull email to the user.
     const template = await getTemplate(
       firstName,
       lastName,
@@ -173,6 +175,7 @@ redisSub.subscribe('processFile', async (channel, _message) => {
     );
     sendEmail(email, template, 'Your PDF was processed successfully ✅');
   } catch (error) {
+    // Send failed mail to the user.
     const template = await getTemplate(
       firstName,
       lastName,

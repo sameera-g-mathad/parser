@@ -4,15 +4,16 @@ import multer from 'multer';
 
 // Route to handle app related resourses.
 // once users are loggedIn.
-
 // create a multer instance to store files
 // in buffer.
+// signature of how multer handle files.
 const storage = multer.diskStorage({
   filename: (
     req: Request,
     file: Express.Multer.File,
     callback: (error: Error | null, filename: string) => void
   ) => {
+    // store filename format: <user_id>_<date>_<filename>;
     const fileName = `${req.user.id}_${Date.now()}_${file.originalname}`;
     callback(null, fileName);
   },
@@ -21,6 +22,7 @@ const storage = multer.diskStorage({
     file: Express.Multer.File,
     callback: (error: Error | null, filename: string) => void
   ) => {
+    // Folder name be changed to be a env var.
     callback(null, '/shared');
   },
 });
@@ -33,6 +35,7 @@ const router = Router();
 // loggedIn or not.
 router.route('/me').get(getMe);
 
+// route to upload files -> [multer uploads to a volume, uploadFile passes it onto worker.]
 router.route('/upload').post(upload.single('file'), uploadFile);
 
 export default router;
