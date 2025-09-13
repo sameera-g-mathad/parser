@@ -50,6 +50,9 @@ export const uploadFile = catchAsync(
       return next(new AppError('No file uploaded. Please attach a file.', 400));
     }
 
+    // get user details for sending email.
+    const { email, firstName, lastName } = req.user;
+
     // Set the filename, used format: <user_id>_<current_date>_<filename>.
     const fileName = file.filename;
     const path = file.path;
@@ -65,6 +68,9 @@ export const uploadFile = catchAsync(
       fileName,
       path,
       mimetype: file.mimetype,
+      email,
+      firstName,
+      lastName,
     });
 
     // Expire the key if the worker doesn't pick
