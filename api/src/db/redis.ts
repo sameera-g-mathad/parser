@@ -6,5 +6,6 @@ export const redisClient = createClient({
   url: process.env.REDISURL,
 });
 
+// create a redis publisher.
 export const redisPub = redisClient.duplicate();
 redisPub.connect();
