@@ -1,5 +1,5 @@
-import { redisClient, redisSub, updateUploads } from './db';
-import { readFileSync } from 'fs';
+import { redisClient, redisSub, pg, updateUploads } from './db';
+import { readFileSync, unlinkSync } from 'fs';
 import {
   S3Client,
   PutObjectCommand,
@@ -8,6 +8,7 @@ import {
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { OpenAIEmbeddings } from '@langchain/openai';
+import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
 
 // create a s3 client with the
 // region and credentials.
@@ -37,6 +38,15 @@ const textSplitter = new RecursiveCharacterTextSplitter({
 const readPdf = (path: string): NonSharedBuffer => {
   const content = readFileSync(path);
   return content;
+};
+
+/**
+ * Delete file from /shared volume uploaded by api
+ * @param path filepath to where the file is stored.
+ * @returns void
+ */
+const deletePdf = (path: string): void => {
+  unlinkSync(path);
 };
 
 /**
@@ -72,13 +82,56 @@ const uploadToS3 = async (
   return true;
 };
 
-// use langchain to create embeddings.
-const createEmbeddings = async (path: string, upload_id: string) => {
-  const loader = new PDFLoader(path, { splitPages: false });
-  const fileContent = await loader.load();
-  const docs = await textSplitter.splitDocuments(fileContent);
-  for (let doc of docs) {
-    doc.id = upload_id;
+/**
+ * @param path Path of the file uploaded in the volume
+ * @param upload_id Upload id stored in the uploads table
+ * @returns Promise<boolean>, that returns whether the embedding process
+ * was a success or not.
+ */
+const createEmbeddings = async (
+  path: string,
+  upload_id: string
+): Promise<boolean> => {
+  try {
+    // 1. Load the pdf using a PdfLoader
+    const loader = new PDFLoader(path, { splitPages: false });
+    const fileContent = await loader.load();
+
+    // 2. Create chunks using RecursiveTextSplitter
+    // chunk_size = 512 # Non modifiable.
+    // chunk_overlap = 100 # Non modifiable.
+    const docs = await textSplitter.splitDocuments(fileContent);
+
+    // 3. store upload_id in docs as this will help while
+    // searching only that document.
+    for (let doc of docs) {
+      // this is to make sure that upload_id matches
+      // the schema, since upload_id is the foreign key
+      // of type uuid and not object.
+      (doc.metadata as unknown as string) = upload_id;
+    }
+
+    // 4. Use PgVectorStore to create embeddings.
+    // Note: Can create own class to store, create and retrieve
+    // embeddings using pgvector with regular postgres,
+    //  I am doing this since this project was to learn
+    // langchain.
+    await PGVectorStore.fromDocuments(docs, openAIEmbeddings, {
+      pool: pg,
+      tableName: 'documents',
+      columns: {
+        idColumnName: 'id',
+        contentColumnName: 'content',
+        vectorColumnName: 'embeddings',
+        metadataColumnName: 'upload_id',
+      },
+    });
+    // finally return true stating the
+    // process was a success.
+    return true;
+  } catch (error) {
+    // return false indicating fail
+    return false;
   }
 };
 
@@ -88,20 +141,26 @@ redisSub.subscribe('processFile', async (channel, message) => {
     const { fileName, path, mimetype } = await redisClient.hGetAll(channel);
     const id = channel.split(':')[1];
     // 1. Try to upload file to s3.
-    // const s3Status = await uploadToS3(fileName, path, mimetype);
+    const s3Status = await uploadToS3(fileName, path, mimetype);
 
     // // 2. if the upload was a fail stop the process
-    // // and update the uploads table.
-    // if (!s3Status) {
-    //   updateUploads(id, 'failed');
-    //   throw Error('Upload to s3 failed.');
-    // }
+    // and update the uploads table.
+    if (!s3Status) {
+      updateUploads(id, 'failed');
+      throw Error('Upload to s3 failed.');
+    }
     // 3. Need to embed text.
-    const embStatus = createEmbeddings(path, id);
-    console.log('working');
+    const embStatus = await createEmbeddings(path, id);
+    if (!embStatus) {
+      updateUploads(id, 'failed');
+      throw Error('Upload to s3 failed.');
+    }
+    // 4. Unlink the file from shared volume mount
+    deletePdf(path);
+
     // Finally update the row as active
     // for usage.
-    // updateUploads(id, 'active');
+    updateUploads(id, 'active');
   } catch (error) {
     console.log((error as Error).message);
   }
