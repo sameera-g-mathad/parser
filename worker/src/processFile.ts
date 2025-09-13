@@ -9,6 +9,8 @@ import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { OpenAIEmbeddings } from '@langchain/openai';
 import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
+import { getTemplate } from './templates/getTemplate';
+import { sendEmail } from './transporter';
 
 // create a s3 client with the
 // region and credentials.
@@ -135,11 +137,12 @@ const createEmbeddings = async (
   }
 };
 
-redisSub.subscribe('processFile', async (channel, message) => {
+redisSub.subscribe('processFile', async (channel, _message) => {
+  const { fileName, path, mimetype, email, firstName, lastName } =
+    await redisClient.hGetAll(channel);
+  // get required info from the redis client
+  const id = channel.split(':')[1];
   try {
-    // get required info from the redis client
-    const { fileName, path, mimetype } = await redisClient.hGetAll(channel);
-    const id = channel.split(':')[1];
     // 1. Try to upload file to s3.
     const s3Status = await uploadToS3(fileName, path, mimetype);
 
@@ -155,13 +158,33 @@ redisSub.subscribe('processFile', async (channel, message) => {
       updateUploads(id, 'failed');
       throw Error('Upload to s3 failed.');
     }
-    // 4. Unlink the file from shared volume mount
-    deletePdf(path);
 
     // Finally update the row as active
     // for usage.
     updateUploads(id, 'active');
+    const template = await getTemplate(
+      firstName,
+      lastName,
+      'Your PDF has been processed!',
+      'Good news 🎉 Your uploaded PDF was processed successfully and is now available in your dashboard.',
+      'http://localhost:3050/app/dashboard',
+      'Go to Dashboard',
+      '#2dd4bf'
+    );
+    sendEmail(email, template, 'Your PDF was processed successfully ✅');
   } catch (error) {
-    console.log((error as Error).message);
+    const template = await getTemplate(
+      firstName,
+      lastName,
+      'There was an issue with your upload',
+      'Unfortunately, we couldn’t process your uploaded PDF. Please try again with a valid file format or check that the file is not corrupted.',
+      'http://localhost:3050/app/dashboard',
+      'Go to Dashboard',
+      '#f87171'
+    );
+    sendEmail(email, template, 'We couldn’t process your PDF ❌');
+  } finally {
+    //  Unlink the file from shared volume mount
+    deletePdf(path);
   }
 });

@@ -1,5 +1,6 @@
-import React, { CSSProperties } from 'react';
+import React from 'react';
 import { Body, Container, Html, Head, Hr, Link, Preview, Section, Text, Img, } from '@react-email/components';
+import { styles } from './styles';
 import fs from 'fs'
 // A react component for creating a welcome 
 // email to the users.
@@ -9,7 +10,8 @@ interface emailInterface {
   preview: string,
   mainText: string,
   extLink: string,
-  linkText: string
+  linkText: string,
+  color: string,
 }
 
 // embed the image inside the email.
@@ -23,16 +25,17 @@ const img = "data:image/png;base64," + fs.readFileSync(`${__dirname}/../../publi
  * @param mainText Main content of the email.
  * @param extLink Link external to the worker. This can be either verifyUser or resetPassword page of the parser website.
  * @param linkText A text to be displayed on the link/button of the email.
+ * @param color Color to use in the email background and button.
  * @returns A JSX element that is used as an email template.
  */
-export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, mainText, extLink, linkText }) => {
+export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, mainText, extLink, linkText, color }) => {
   return (
     <Html>
       <Head />
-      <Body style={bodyStyle}>
+      <Body style={styles.bodyStyle}>
         <Preview>{preview}</Preview>
         <Container>
-          <Section style={logoStyle}>
+          <Section style={{ ...styles.logoStyle, backgroundColor: color }}>
             <Img
               src={img}
               alt='Parser'
@@ -41,7 +44,7 @@ export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, 
             />
           </Section>
           <Hr />
-          <Text style={nameStyle}>
+          <Text style={styles.nameStyle}>
             Hi {firstName} {lastName},
           </Text>
           <Text>
@@ -49,7 +52,7 @@ export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, 
           </Text>
 
           <Link href={extLink}>
-            <Text style={verificationButton}>
+            <Text style={{ ...styles.verificationButton, backgroundColor: color }}>
               {linkText}
             </Text>
           </Link>
@@ -67,32 +70,6 @@ export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, 
     </Html>
   );
 };
-
-// Css Properties.
-const bodyStyle: CSSProperties = {
-  fontSize: '15px',
-}
-
-const logoStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: "10px"
-}
-
-const nameStyle: CSSProperties = {
-  textTransform: 'capitalize',
-}
-
-const verificationButton: CSSProperties = {
-  textAlign: 'center',
-  padding: "10px",
-  border: "1px solid white",
-  borderRadius: '10px',
-  fontWeight: 'bold',
-  color: 'white',
-  backgroundColor: '#554C91'
-}
 
 
 Email.displayName = 'Signup'
