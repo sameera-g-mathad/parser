@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { getMe, uploadFile } from '../controllers/appController';
+import { getMe, getUploads, uploadFile } from '../controllers/appController';
 import multer from 'multer';
 
 // Route to handle app related resourses.
@@ -37,5 +37,8 @@ router.route('/me').get(getMe);
 
 // route to upload files -> [multer uploads to a volume, uploadFile passes it onto worker.]
 router.route('/upload').post(upload.single('file'), uploadFile);
+
+// to get all the uploaded files.
+router.route('/get-uploads').get(getUploads);
 
 export default router;

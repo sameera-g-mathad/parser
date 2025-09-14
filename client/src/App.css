@@ -81,3 +81,7 @@ width goes from 0 to 100%
     max-width: 100%;
   }
 }
+
+.upload:hover .add-svg {
+  transform: rotate(90deg);
+}

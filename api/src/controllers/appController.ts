@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import { writeFile } from 'fs';
 import { S3Client } from '@aws-sdk/client-s3';
-import { insertUpload } from '../models/uploadModel';
+import { insertUpload, selectUploads } from '../models/uploadModel';
 import { AppError, catchAsync } from '../utils';
 import { redisClient, redisPub } from '../db';
 
@@ -90,6 +89,23 @@ export const uploadFile = catchAsync(
       status: 'success',
       message:
         'Your request has been received and is being processed. You will be notified once it is complete.',
+    });
+  }
+);
+
+/**
+ *
+ */
+export const getUploads = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user_id = req.user.id;
+
+    const uploads = await selectUploads(user_id);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Succesfull',
+      uploads,
     });
   }
 );

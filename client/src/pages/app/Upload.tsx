@@ -1,5 +1,6 @@
 import { useCustomReducer, useErrorHandler } from "@/hooks";
 import { FileUpload, Alert } from "@/reusables";
+import { AddSvg } from "@/svgs";
 
 /**
  * 
@@ -25,14 +26,19 @@ export const Upload = () => {
         )
         return response
     }, setAlertMsg)
-    return <div className="w-full h-32 flex justify-between items-center sm:px-0 px-2 ">
+    return <div className="w-full h-40 my-2 rounded-xl flex justify-between items-center sm:px-0 px-2 ">
         <span className="sm:text-xl font-semibold">
             Begin your journey with Parser
         </span>
         <FileUpload accept=".pdf" callback={(files) => uploadFile(files)}>
-            <span className="bg-indigo-500 p-2 text-white rounded-full cursor-pointer">File Upload</span>
+            <div className=" bg-indigo-500 flex justify-center items-center gap-2 p-2 text-white rounded-lg cursor-pointer group">
+                <AddSvg className="w-5 h-5 stroke-white transform transition-transform group-hover:rotate-90" />
+                <span className="font-bold capitalize">upload document</span>
+            </div>
+
         </FileUpload>
         {/*Overiding style here. */}
         {state.alertMsg['status'] && <Alert className="alert-info" message={state.alertMsg['message']} key={state.alertMsg['id']} />}
     </div>
 };
+
