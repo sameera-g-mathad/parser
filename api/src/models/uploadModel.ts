@@ -18,3 +18,21 @@ export const insertUpload = async (
   );
   return upload.rows[0];
 };
+
+/**
+ *
+ */
+export const selectUploads = async (user_id: string) => {
+  const uploads = await pg.query(
+    `
+    SELECT id, original_name, status, updated_at, created_at
+    FROM uploads
+    WHERE user_id = $1 AND status <> 'failed'
+    ORDER BY updated_at DESC
+    OFFSET 0
+    LIMIT 10
+    `,
+    [user_id]
+  );
+  return uploads.rows;
+};
