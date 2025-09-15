@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { PdfSvg } from "@/svgs";
+import { Link } from "react-router-dom";
 
 interface uploadRowInterface {
+    id?: string,
     original_name: string,
     status: string,
     updated_at: string,
     created_at: string
 }
 
+/**
+ * 
+ * @returns A JSX component that is used to display each upload
+ * on the screen
+ */
 export const ListFiles = () => {
     const [data, setData] = useState<uploadRowInterface[]>([])
+
+    // get all the uploads from the backend.
     const getUploads = async () => {
         const response = await fetch('/api/app/get-uploads',
             {
@@ -29,16 +38,22 @@ export const ListFiles = () => {
     return <>
         {
             data.map((el, i) =>
-                <div key={i}>
+                <Link to={`/app/uploads/${el.id}`} key={i}>
                     <ListRow original_name={el.original_name} status={el.status} updated_at={el.updated_at} created_at={el.created_at} />
-                </div>
+                </Link>
             )
         }
     </>
 };
 
 
-const ListRow: React.FC<uploadRowInterface> = ({ original_name, status, updated_at }) => {
+/**
+ * 
+ * @param original_name Name of the file to display 
+ * @returns A JSX Component with the details of each uplaod. As of
+ * now only name is displayed.
+ */
+const ListRow: React.FC<uploadRowInterface> = ({ original_name }) => {
     return <div className="flex justify-between items-center border border-slate-300 bg-white rounded-xl my-2 p-2 px-5 group overflow-hidden cursor-pointer">
         <div className="flex flex-col">
             <span className="w-64 capitalize font-semibold ellipses">{original_name}</span>

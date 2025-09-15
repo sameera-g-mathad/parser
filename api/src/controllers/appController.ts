@@ -1,6 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
-import { S3Client } from '@aws-sdk/client-s3';
-import { insertUpload, selectUploads } from '../models/uploadModel';
+import {
+  S3Client,
+  GetObjectCommand,
+  GetObjectCommandInput,
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import {
+  getUploadById,
+  insertUpload,
+  selectUploads,
+} from '../models/uploadModel';
 import { AppError, catchAsync } from '../utils';
 import { redisClient, redisPub } from '../db';
 
@@ -94,18 +103,62 @@ export const uploadFile = catchAsync(
 );
 
 /**
- *
+ * This method is to get the uploads
+ * from the database and return it back
+ * to the users.
  */
 export const getUploads = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // Get the user id from the request.
     const user_id = req.user.id;
 
+    // get all uploads.
     const uploads = await selectUploads(user_id);
 
     res.status(200).json({
       status: 'success',
       message: 'Succesfull',
       uploads,
+    });
+  }
+);
+
+/**
+ * Method to get the url from the s3 bucket
+ * to serve the user. Id is needed.
+ */
+export const getUploadPdfUrl = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1. get the id from the url
+    const { id } = req.params;
+
+    // 2. Find an upload if present.
+    const upload = await getUploadById(id);
+
+    // 3. if there is no upload or the id was deleted
+    // return back.
+    if (upload === undefined) {
+      return next(new AppError('No file exists', 400));
+    }
+
+    const filename = upload.file_name;
+
+    // s3 command options.
+    const getOptions: GetObjectCommandInput = {
+      Bucket: process.env.AWS_BUCKET!,
+      Key: filename,
+    };
+
+    // 4. Get the url with getSignedUrl.
+    const url = await getSignedUrl(s3, new GetObjectCommand(getOptions), {
+      expiresIn: 300,
+    });
+
+    // 5. Return the success response.
+    res.status(200).json({
+      status: 'success',
+      message: 'successful',
+      url,
     });
   }
 );
