@@ -20,7 +20,21 @@ export const insertUpload = async (
 };
 
 /**
- *
+ * to fetch a row given upload id.
+ * @param upload_id - Primary key of the upload table.
+ * @returns A row corresponding to the id.
+ */
+export const getUploadById = async (upload_id: string): Promise<any> => {
+  const upload = await pg.query(`SELECT * FROM UPLOADS WHERE id=$1`, [
+    upload_id,
+  ]);
+  return upload.rows[0];
+};
+
+/**
+ * Returns the uploads of the user.
+ * @param user_id User Id to return all of their uploded pdfs.
+ * @returns 10 recent uploads of the users.
  */
 export const selectUploads = async (user_id: string) => {
   const uploads = await pg.query(

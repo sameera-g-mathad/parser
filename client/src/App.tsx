@@ -8,7 +8,7 @@ import {
   // Redirect loggedIn users
   RedirectIfLogged,
   // App related Components
-  Dashboard, ProtectedRoute,
+  Dashboard, ProtectedRoute, Chat,
   // Not found Component
   NotFound
 } from './pages'
@@ -95,6 +95,7 @@ function App() {
 
           <Route path="/app" element={<ProtectedRoute />} >
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="uploads/:id" element={<Chat />} />
           </Route>
 
 

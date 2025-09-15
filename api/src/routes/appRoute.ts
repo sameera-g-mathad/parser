@@ -1,5 +1,10 @@
 import { Router, Request, Response } from 'express';
-import { getMe, getUploads, uploadFile } from '../controllers/appController';
+import {
+  getMe,
+  getUploads,
+  getUploadPdfUrl,
+  uploadFile,
+} from '../controllers/appController';
 import multer from 'multer';
 
 // Route to handle app related resourses.
@@ -40,5 +45,8 @@ router.route('/upload').post(upload.single('file'), uploadFile);
 
 // to get all the uploaded files.
 router.route('/get-uploads').get(getUploads);
+
+// Serve requests for the upload id.
+router.route('/uploads/:id').get(getUploadPdfUrl);
 
 export default router;
