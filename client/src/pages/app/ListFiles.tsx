@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PdfSvg } from "@/svgs";
 import { Link } from "react-router-dom";
-
-interface uploadRowInterface {
-    id?: string,
-    original_name: string,
-    status: string,
-    updated_at: string,
-    created_at: string
-}
+import type { uploadRowInterface } from "@/interface";
 
 /**
  * 

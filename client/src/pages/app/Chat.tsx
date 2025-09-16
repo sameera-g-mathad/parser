@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { ChatWindow, PDFWindow } from "./";
 
 /**
  * 
  * @returns A JSX Component, that displays both pdf and
  * a chat window for the user to ask questions.
  */
-export const Chat = () => {
+export const Chat: React.FC = () => {
     const [pdfUrl, setPdfUrl] = useState('')
     const location = useLocation()
 
@@ -28,13 +29,9 @@ export const Chat = () => {
 
 
     return <div className="w-full h-screen flex justify-between">
-        <div className="w-full bg-blue-400">Chat</div>
-        <div className="w-full">
-            {pdfUrl !== '' ?
-                <iframe
-                    src={pdfUrl}
-                    className="w-full h-full"
-                /> : ''}
+        <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" /></div>
+        <div className="sm:w-full">
+            <PDFWindow />
         </div>
     </div>;
 };

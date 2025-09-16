@@ -1,4 +1,15 @@
 /*
+* Hide scrollbar
+*/
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  scrollbar-width: 0px;
+}
+
+/*
 To set the style of alert boxes. both alertIn and alertOut
 animations are added to give a fadin and out effect.
 */
