@@ -26,3 +26,8 @@ export interface inputInterface extends RootInterface.className {
   value: string;
   callback: (item: string) => void;
 }
+
+export interface textBoxInterface extends RootInterface.className {
+  placeholder: string;
+  onSubmit: (query: string) => void;
+}

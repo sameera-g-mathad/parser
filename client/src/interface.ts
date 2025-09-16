@@ -39,6 +39,12 @@ export type ErrorHandler = {
   ) => (...args: T) => Promise<void>;
 };
 
+// Used in ChatWindow and Message.tsx
+export type message = {
+  by: 'ai' | 'human';
+  content: string;
+};
+
 export interface className {
   className?: string;
 }
@@ -67,4 +73,16 @@ export interface signInInterface {
 export interface forgotPasswordInterface {
   email: string;
   alertMsg: alertMsgInterface;
+}
+
+export interface uploadRowInterface {
+  id?: string;
+  original_name: string;
+  status: string;
+  updated_at: string;
+  created_at: string;
+}
+
+export interface messageInterface {
+  message: message;
 }
