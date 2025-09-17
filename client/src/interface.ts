@@ -86,3 +86,8 @@ export interface uploadRowInterface {
 export interface messageInterface {
   message: message;
 }
+
+export interface pdfWindowInterface {
+  url: string;
+  moveToPage: number;
+}
