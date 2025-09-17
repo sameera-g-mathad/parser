@@ -1,10 +1,11 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, response, Response } from 'express';
 import {
   S3Client,
   GetObjectCommand,
   GetObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { conversationalRetrievelQA } from '../utils/langchainConfig';
 import {
   getUploadById,
   insertUpload,
@@ -159,6 +160,46 @@ export const getUploadPdfUrl = catchAsync(
       status: 'success',
       message: 'successful',
       url,
+    });
+  }
+);
+
+/**
+ * will complete this later.
+ */
+export const requestLLM = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { query } = req.body;
+    const { id } = req.params;
+
+    const response = await conversationalRetrievelQA.stream({
+      question: query,
+      chatHistory: [],
+      uploadId: id,
+    });
+
+    const reader = response.getReader();
+
+    while (true) {
+      try {
+        const { value, done } = await reader.read();
+        console.log(value);
+      } catch (error) {
+        console.log(error);
+        break;
+      } finally {
+        res.status(200).json({
+          status: 'failed',
+        });
+      }
+      //   if (done) break;
+
+      //   res.write(value);
+      // }
+      // res.end();
+    }
+    res.status(200).json({
+      status: 'failed',
     });
   }
 );

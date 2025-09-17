@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TextBox } from "@/reusables";
 import { Message } from "./";
 import type { className, message } from "@/interface";
+import { useLocation } from "react-router-dom";
 
 
 /**
@@ -13,6 +14,7 @@ import type { className, message } from "@/interface";
 export const ChatWindow: React.FC<className> = ({ className }) => {
     const [messages, setMessages] = useState<message[]>([])
     const chatWindowRef = useRef<HTMLDivElement>(null)
+    const location = useLocation()
 
     // This sets the scroller to the current message being displayed
     // on the screen.
@@ -32,6 +34,15 @@ export const ChatWindow: React.FC<className> = ({ className }) => {
                 { by: 'ai', content: 'what is ai' }
             ]
         )
+        const response = await fetch(`/api${location.pathname}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ query })
+        })
+        // will implement streaming next.
+        console.log(response)
     }
 
     return <div className={`grid grid-rows-16 h-full ${className}`}>

@@ -3,6 +3,7 @@ import {
   getMe,
   getUploads,
   getUploadPdfUrl,
+  requestLLM,
   uploadFile,
 } from '../controllers/appController';
 import multer from 'multer';
@@ -47,6 +48,6 @@ router.route('/upload').post(upload.single('file'), uploadFile);
 router.route('/get-uploads').get(getUploads);
 
 // Serve requests for the upload id.
-router.route('/uploads/:id').get(getUploadPdfUrl);
+router.route('/uploads/:id').get(getUploadPdfUrl).post(requestLLM);
 
 export default router;
