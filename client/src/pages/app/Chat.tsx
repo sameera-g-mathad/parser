@@ -31,7 +31,7 @@ export const Chat: React.FC = () => {
     return <div className="w-full h-screen flex justify-between">
         <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" /></div>
         <div className="sm:w-full">
-            <PDFWindow />
+            {pdfUrl ? <PDFWindow url={pdfUrl} moveToPage={1} /> : ''}
         </div>
     </div>;
 };
