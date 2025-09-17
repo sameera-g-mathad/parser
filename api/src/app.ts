@@ -7,6 +7,7 @@ import authRouter from './routes/authRoute';
 import appRouter from './routes/appRoute';
 import { AppError } from './utils/AppError';
 import { protect } from './controllers/authController';
+
 const app = express();
 
 // adds body to request
