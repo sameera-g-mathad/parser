@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import {
@@ -50,16 +51,17 @@ Question: {question}
 
 Answer:
 `);
+// Create new instance. This is used for streaming
+const streamLLm = new ChatOpenAI({
+  ...openAIOptions,
+  streaming: true,
+});
 
 // Chain to take the chat_history and convert it into a standalone
 // question
 const condenseChain = RunnableSequence.from([standAlonePrompt, llm, parser]);
 
-// Chain to take the data context retrieved and question for the llm
-// to answer.
-const qaChain = RunnableSequence.from([QAPrompt, llm, parser]);
-
-// Runnable sequence flow to handle both condensation, retrieval, conversation.
+// Runnable sequence flow to handle both condensation, retrieval.
 export const conversationalRetrievelQA = RunnableSequence.from([
   // pass down the inputs.
   new RunnableMap({
@@ -76,15 +78,54 @@ export const conversationalRetrievelQA = RunnableSequence.from([
   },
   // retrieve the documents.
   {
-    context: async (prev: any) => {
-      return await retriever.similaritySearch(prev.question, 5, {
+    output: async (prev: any) => {
+      const docs = await retriever.similaritySearch(prev.question, 5, {
         uploadId: prev.input.uploadId,
       });
+
+      return {
+        context: docs,
+        question: prev.question,
+      };
     },
-    question: new RunnablePassthrough(),
-  },
-  // finally run the rag chain.
-  {
-    answer: qaChain,
   },
 ]);
+
+/**
+ *
+ * @param res Express response to send response back to the user
+ * @param input Input with both context and question to ask the llm.
+ * @returns Response Stream back to the user.
+ */
+export const stream = async (
+  res: Response,
+  input: { context: string; question: string }
+) => {
+  try {
+    // Important to send streams to the frontend.
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    // set llm callbacks for handling
+    // streams.
+    streamLLm.callbacks = [
+      {
+        // send each token as generated back to the user.
+        handleLLMNewToken: (token: string) => {
+          res.write(token);
+        },
+        // end the stream for now.
+        handleLLMEnd: () => {
+          res.end();
+        },
+      },
+    ];
+    // create a stream chain.
+    const qaChain = RunnableSequence.from([QAPrompt, streamLLm]);
+
+    // invoke chain.
+    await qaChain.invoke(input);
+  } catch (error) {
+    throw error;
+  }
+};

@@ -37,6 +37,7 @@ export const TextBox: React.FC<textBoxInterface> = ({ placeholder, onSubmit }) =
             }
             }
             onKeyDown={(e) => {
+                if (query.trim() === '') return
                 // When the enter button is clicked.
                 if (e.key.toLowerCase() === 'enter') {
                     onSubmit(query);
@@ -45,7 +46,7 @@ export const TextBox: React.FC<textBoxInterface> = ({ placeholder, onSubmit }) =
             }
             }
         />
-        <Button className="active:scale-75 transform transition-transform duration-100" callback={() => onSubmit(query)}>
+        <Button className="btn-click" callback={() => { if (query.trim() !== '') return; onSubmit(query) }}>
             <SendSvg className="stroke-slate-700 w-7! h-7!" />
         </Button>
     </div>;

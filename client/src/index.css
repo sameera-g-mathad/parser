@@ -35,3 +35,7 @@ Custom class for ellipses.
 .ellipses {
   @apply whitespace-nowrap overflow-hidden text-ellipsis;
 }
+
+.btn-click {
+  @apply active:scale-75 transform transition-transform duration-100;
+}

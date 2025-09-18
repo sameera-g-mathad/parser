@@ -1,4 +1,3 @@
-import { pg } from './index';
 import {
   PGVectorStore,
   PGVectorStoreArgs,
@@ -34,7 +33,7 @@ export class CustomPgVector extends PGVectorStore {
     const params = uploadId ? [vectorLiteral, k, uploadId] : [vectorLiteral, k];
 
     // 3. Query the results.
-    const rows = await pg.query(
+    const rows = await this.pool.query(
       `
       SELECT id, content, embeddings <=> $1 AS similarity
       FROM documents
