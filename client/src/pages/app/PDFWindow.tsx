@@ -101,13 +101,13 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
 
     return <div className="w-full h-full p-2">
         {pdfDoc ? <><div className="flex justify-end py-1 gap-3">
-            <Button callback={decrementPage}><NextSvg className="rotate-180" /></Button>
+            <Button callback={decrementPage}><NextSvg className="rotate-180 btn-click" /></Button>
             <span className="font-semibold text-[14px] flex gap-2">
                 <span>{currentPage}</span>
                 <span>/</span>
                 <span>{totalPages}</span>
             </span>
-            <Button callback={incrementPage}><NextSvg /></Button>
+            <Button callback={incrementPage}><NextSvg className="btn-click" /></Button>
         </div>
             <canvas ref={canvasRef} id='pdf-viewer' className="w-full h-[95%] flex-1" />
         </> : "Loading"}

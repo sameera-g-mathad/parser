@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { useAuth } from "@/context/authContext";
 import { LogoSvg } from "@/svgs";
 import type { messageInterface } from "@/interface";
@@ -9,7 +9,7 @@ import type { messageInterface } from "@/interface";
  * @param message - Contains (by and content) to display messages accordingly.
  * @returns - A JSX Component that displays messages on the screen.
  */
-export const Message: React.FC<messageInterface> = ({ message }) => {
+export const Message: React.FC<messageInterface> = memo(({ message }) => {
     // desturcture message.
     const { by, content } = message
     // Get user.
@@ -29,4 +29,4 @@ export const Message: React.FC<messageInterface> = ({ message }) => {
                 <span>{content}</span>
             </div>
     }</div>
-};
+});

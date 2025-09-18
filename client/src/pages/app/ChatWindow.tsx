@@ -12,9 +12,10 @@ import { useLocation } from "react-router-dom";
  * the messages.
  */
 export const ChatWindow: React.FC<className> = ({ className }) => {
-    const [messages, setMessages] = useState<message[]>([])
-    const chatWindowRef = useRef<HTMLDivElement>(null)
-    const location = useLocation()
+    const [messages, setMessages] = useState<message[]>([]);
+    const chatWindowRef = useRef<HTMLDivElement>(null);
+    const location = useLocation();
+    const decoder = new TextDecoder();
 
     // This sets the scroller to the current message being displayed
     // on the screen.
@@ -31,7 +32,7 @@ export const ChatWindow: React.FC<className> = ({ className }) => {
             [
                 ...prevMsgs,
                 { by: 'human', content: query },
-                { by: 'ai', content: 'what is ai' }
+                { by: 'ai', content: 'RAG stands for "Retrieval-Augmented Generation" in the field of Artificial Intelligence. It is a framework that combines retrieval-based methods with generative models to enhance AI systems by tracing each output back to its source document. RAG allows for human feedback, continual improvements, and minimizing inaccuracies, hallucinations, and bias in AI systems.' }
             ]
         )
         const response = await fetch(`/api${location.pathname}`, {
@@ -41,8 +42,28 @@ export const ChatWindow: React.FC<className> = ({ className }) => {
             },
             body: JSON.stringify({ query })
         })
-        // will implement streaming next.
-        console.log(response)
+        // get the reader from the stream.
+        const reader = response.body?.getReader()
+        let message = "";
+        // until the streaming is not ended, run
+        // the while loop.
+        while (true) {
+            const { value, done } = await reader?.read()!;
+
+            if (done) break;
+
+            // get the message back from the buffer.
+            message += decoder.decode(value);
+
+            setMessages(prevMsgs => {
+                const newMsgs = [...prevMsgs];
+                // overwrite the last message.
+                newMsgs[prevMsgs.length - 1] = { by: 'ai', 'content': message }
+                return newMsgs;
+            });
+        }
+
+
     }
 
     return <div className={`grid grid-rows-16 h-full ${className}`}>

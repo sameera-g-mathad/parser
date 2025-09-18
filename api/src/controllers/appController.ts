@@ -5,7 +5,7 @@ import {
   GetObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { conversationalRetrievelQA } from '../utils/langchainConfig';
+import { conversationalRetrievelQA, stream } from '../utils/langchainConfig';
 import {
   getUploadById,
   insertUpload,
@@ -165,41 +165,27 @@ export const getUploadPdfUrl = catchAsync(
 );
 
 /**
- * will complete this later.
+ * Method to stream response from llm to the frontend.
+ * A single question is taken and converted into a statndalone
+ * question along with the chat history using langchain.
+ * This question is later sent to the llm along with the context.
  */
 export const requestLLM = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    // get query from the user.
     const { query } = req.body;
+    // get id from url.
     const { id } = req.params;
 
-    const response = await conversationalRetrievelQA.stream({
+    // retreive context and standalone data.
+    const response = await conversationalRetrievelQA.invoke({
       question: query,
-      chatHistory: [],
+      chatHistory: [], // will implement this.
       uploadId: id,
     });
 
-    const reader = response.getReader();
-
-    while (true) {
-      try {
-        const { value, done } = await reader.read();
-        console.log(value);
-      } catch (error) {
-        console.log(error);
-        break;
-      } finally {
-        res.status(200).json({
-          status: 'failed',
-        });
-      }
-      //   if (done) break;
-
-      //   res.write(value);
-      // }
-      // res.end();
-    }
-    res.status(200).json({
-      status: 'failed',
-    });
+    // stream response to the user. Sending
+    // of response is handled inside.
+    await stream(res, response.output);
   }
 );
