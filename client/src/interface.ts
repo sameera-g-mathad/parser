@@ -40,10 +40,16 @@ export type ErrorHandler = {
 };
 
 // Used in ChatWindow and Message.tsx
-export type message = {
-  by: 'ai' | 'human';
-  content: string;
-};
+export type message =
+  | {
+      by: 'human';
+      content: string;
+    }
+  | {
+      by: 'ai';
+      content: string;
+      pageNumbers?: number[];
+    };
 
 export interface className {
   className?: string;
@@ -85,6 +91,12 @@ export interface uploadRowInterface {
 
 export interface messageInterface {
   message: message;
+  streaming: boolean;
+  onPageClick: (page: number) => void;
+}
+
+export interface chatWindowInterface {
+  onPageClick: (page: number) => void;
 }
 
 export interface pdfWindowInterface {

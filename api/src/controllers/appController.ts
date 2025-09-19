@@ -185,7 +185,39 @@ export const requestLLM = catchAsync(
     });
 
     // stream response to the user. Sending
-    // of response is handled inside.
-    await stream(res, response.output);
+    // of response is handled inside. The message
+    // is stored to store in the db.
+    const aiMessage = await stream(res, response.output);
+
+    // This part is to return the pages from
+    // which the contents were taken.
+
+    // Use of set to avoid duplicates
+    const uniquePageNumbers = new Set();
+    // using an empty array to maintain order.
+    const pageNumbers = [];
+    const context: any = response.output.context;
+
+    // add page numbers into the array.
+    for (let i = 0; i < context.length; i++) {
+      const page = context[i].page_number;
+      if (!uniquePageNumbers.has(page)) {
+        pageNumbers.push(page);
+        uniquePageNumbers.add(page);
+      }
+    }
+
+    // creating an object, since streams
+    // need strings and this object is sent in
+    // the same stream, tokens are sent.
+    const pageResponse = {
+      event: 'pageNumber',
+      pageNumbers,
+    };
+
+    // Write the pageNumbers,
+    res.write(JSON.stringify(pageResponse) + '\n'); // \n is important if there are multiple objects.
+    // end the stream.
+    res.end();
   }
 );

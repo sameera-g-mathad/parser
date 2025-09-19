@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TextBox } from "@/reusables";
 import { Message } from "./";
-import type { className, message } from "@/interface";
+import type { className, message, chatWindowInterface } from "@/interface";
 import { useLocation } from "react-router-dom";
 
 
@@ -11,8 +11,9 @@ import { useLocation } from "react-router-dom";
  * @returns A JSX element that displays the chat window with both the text box and
  * the messages.
  */
-export const ChatWindow: React.FC<className> = ({ className }) => {
+export const ChatWindow: React.FC<className & chatWindowInterface> = ({ className, onPageClick }) => {
     const [messages, setMessages] = useState<message[]>([]);
+    const [streaming, setStreaming] = useState<boolean>(false);
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const location = useLocation();
     const decoder = new TextDecoder();
@@ -28,12 +29,12 @@ export const ChatWindow: React.FC<className> = ({ className }) => {
     // method called when the query is submitted to the 
     // server.
     const onSubmit = async (query: string) => {
+        setStreaming(true)
         setMessages(prevMsgs =>
             [
                 ...prevMsgs,
                 { by: 'human', content: query },
-                { by: 'ai', content: 'RAG stands for "Retrieval-Augmented Generation" in the field of Artificial Intelligence. It is a framework that combines retrieval-based methods with generative models to enhance AI systems by tracing each output back to its source document. RAG allows for human feedback, continual improvements, and minimizing inaccuracies, hallucinations, and bias in AI systems.' }
-            ]
+                { by: 'ai', content: "" }]
         )
         const response = await fetch(`/api${location.pathname}`, {
             method: 'POST',
@@ -52,25 +53,42 @@ export const ChatWindow: React.FC<className> = ({ className }) => {
 
             if (done) break;
 
-            // get the message back from the buffer.
-            message += decoder.decode(value);
+            const buffer = decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n')
+            lines.pop() // this removes unwanted '' from the list
 
-            setMessages(prevMsgs => {
-                const newMsgs = [...prevMsgs];
-                // overwrite the last message.
-                newMsgs[prevMsgs.length - 1] = { by: 'ai', 'content': message }
-                return newMsgs;
-            });
+            for (let line of lines) {
+                const lineObj: { event: 'token' | 'pageNumber', token?: string, pageNumbers?: number[] } = JSON.parse(line);
+                if (lineObj.event === 'token') {
+                    message += lineObj.token;
+
+                    setMessages(prevMsgs => {
+                        const newMsgs = [...prevMsgs];
+                        // overwrite the last message.
+                        newMsgs[prevMsgs.length - 1] = { by: 'ai', 'content': message }
+                        return newMsgs;
+                    });
+                }
+                else {
+                    setMessages(prevMsgs => {
+                        const lastIndex = prevMsgs.length - 1
+                        // overwrite the last message.
+                        if (prevMsgs[lastIndex].by === 'ai')
+                            prevMsgs[lastIndex] = { ...prevMsgs[lastIndex], pageNumbers: lineObj.pageNumbers }
+                        return prevMsgs;
+                    });
+                }
+            }
+
         }
-
-
+        setStreaming(false)
     }
 
     return <div className={`grid grid-rows-16 h-full ${className}`}>
         <div className="row-start-1 row-span-14 overflow-y-scroll scrollbar-hide" ref={chatWindowRef}>
             {
                 messages.map(
-                    (el, index) => <Message key={index} message={el} />
+                    (el, index) => <Message key={index} message={el} streaming={index === messages.length - 1 ? streaming : false} onPageClick={onPageClick} />
                 )
             }
         </div>

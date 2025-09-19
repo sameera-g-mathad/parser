@@ -9,6 +9,8 @@ import { ChatWindow, PDFWindow } from "./";
  */
 export const Chat: React.FC = () => {
     const [pdfUrl, setPdfUrl] = useState('')
+    // To navigate to particular page in the pdf.
+    const [moveToPage, setMoveToPage] = useState<number>(1);
     const location = useLocation()
 
     /**
@@ -27,11 +29,11 @@ export const Chat: React.FC = () => {
     }
     useEffect(() => { getPdfUrl() }, []);
 
-
+    console.log(moveToPage)
     return <div className="w-full h-screen flex justify-between">
-        <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" /></div>
+        <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" onPageClick={(page: number) => setMoveToPage(page)} /></div>
         <div className="sm:w-full">
-            {pdfUrl ? <PDFWindow url={pdfUrl} moveToPage={1} /> : ''}
+            {pdfUrl ? <PDFWindow url={pdfUrl} moveToPage={moveToPage} /> : ''}
         </div>
     </div>;
 };

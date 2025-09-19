@@ -99,9 +99,11 @@ export const conversationalRetrievelQA = RunnableSequence.from([
  */
 export const stream = async (
   res: Response,
-  input: { context: string; question: string }
-) => {
+  input: { context: any; question: any }
+): Promise<string> => {
   try {
+    // store the whole message to persist in db.
+    let aiMessage = '';
     // Important to send streams to the frontend.
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Transfer-Encoding', 'chunked');
@@ -112,11 +114,12 @@ export const stream = async (
       {
         // send each token as generated back to the user.
         handleLLMNewToken: (token: string) => {
-          res.write(token);
-        },
-        // end the stream for now.
-        handleLLMEnd: () => {
-          res.end();
+          const resAsObj = {
+            event: 'token',
+            token: token,
+          };
+          res.write(JSON.stringify(resAsObj) + '\n'); // \n is important if there are multiple objects.
+          aiMessage += token; // accumulate message.
         },
       },
     ];
@@ -125,6 +128,9 @@ export const stream = async (
 
     // invoke chain.
     await qaChain.invoke(input);
+
+    // return the whole message.
+    return aiMessage;
   } catch (error) {
     throw error;
   }
