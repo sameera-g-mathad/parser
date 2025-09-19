@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ChatWindow, PDFWindow } from "./";
+import { useCustomReducer } from "@/hooks";
 
 /**
  * 
@@ -8,9 +9,7 @@ import { ChatWindow, PDFWindow } from "./";
  * a chat window for the user to ask questions.
  */
 export const Chat: React.FC = () => {
-    const [pdfUrl, setPdfUrl] = useState('')
-    // To navigate to particular page in the pdf.
-    const [moveToPage, setMoveToPage] = useState<number>(1);
+    const { state, setFieldWithValue } = useCustomReducer({ pdfUrl: '', moveToPage: 1 })
     const location = useLocation()
 
     /**
@@ -25,13 +24,13 @@ export const Chat: React.FC = () => {
             }
         })
         const data = await response.json();
-        setPdfUrl(data.url)
+        setFieldWithValue('pdfUrl', data.url)
     }
     useEffect(() => { getPdfUrl() }, []);
+    const { pdfUrl, moveToPage } = state;
 
-    console.log(moveToPage)
     return <div className="w-full h-screen flex justify-between">
-        <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" onPageClick={(page: number) => setMoveToPage(page)} /></div>
+        <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" onPageClick={(page: number) => setFieldWithValue('moveToPage', page)} /></div>
         <div className="sm:w-full">
             {pdfUrl ? <PDFWindow url={pdfUrl} moveToPage={moveToPage} /> : ''}
         </div>

@@ -4,4 +4,6 @@ export * from './LogoutSvg';
 export * from './NextSvg';
 export * from './PageNumberSvg';
 export * from './PdfSvg';
+export * from './RefreshSvg';
+export * from './SearchSvg';
 export * from './SendSvg';
