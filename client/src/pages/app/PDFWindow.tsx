@@ -93,6 +93,11 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
         loadPdf(url)
     }, [url])
 
+    // update moveTo page on change.
+    useEffect(() => {
+        setCurrentPage(moveToPage)
+    }, [moveToPage])
+
     // render page if pdfdoc or current page changes.
     useEffect(() => {
         if (!pdfDoc) return;
