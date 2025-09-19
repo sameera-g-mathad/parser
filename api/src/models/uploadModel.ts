@@ -34,19 +34,20 @@ export const getUploadById = async (upload_id: string): Promise<any> => {
 /**
  * Returns the uploads of the user.
  * @param user_id User Id to return all of their uploded pdfs.
+ * @param searchQuery Name of the file typed by the user.
  * @returns 10 recent uploads of the users.
  */
-export const selectUploads = async (user_id: string) => {
+export const selectUploads = async (user_id: string, searchQuery?: string) => {
   const uploads = await pg.query(
     `
     SELECT id, original_name, status, updated_at, created_at
     FROM uploads
-    WHERE user_id = $1 AND status <> 'failed'
+    WHERE user_id = $1 AND status <> 'failed' AND original_name ILIKE $2
     ORDER BY updated_at DESC
     OFFSET 0
     LIMIT 10
     `,
-    [user_id]
+    [user_id, `%${searchQuery}%`]
   );
   return uploads.rows;
 };
