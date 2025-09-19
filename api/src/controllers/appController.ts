@@ -112,9 +112,13 @@ export const getUploads = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // Get the user id from the request.
     const user_id = req.user.id;
+    // get the search name if present in the query.
+    let searchQuery = '';
+    if (req.query.search && typeof req.query.search === 'string')
+      searchQuery = req.query.search;
 
     // get all uploads.
-    const uploads = await selectUploads(user_id);
+    const uploads = await selectUploads(user_id, searchQuery);
 
     res.status(200).json({
       status: 'success',
