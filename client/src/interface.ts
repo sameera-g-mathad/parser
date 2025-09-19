@@ -23,7 +23,7 @@ export type ReducerType<T> = T & { alertMsg: alertMsgInterface };
 // Returns a state, setFieldWithValue, and setAlertMsg.
 export type Reducer<T> = {
   state: ReducerType<T>;
-  setFieldWithValue: (field: string, value: string) => void;
+  setFieldWithValue: (field: string, value: string | number) => void;
   setAlertMsg: (alertMsg: alertMsgInterface) => void;
 };
 
@@ -83,6 +83,7 @@ export interface forgotPasswordInterface {
 
 export interface uploadRowInterface {
   id?: string;
+  rowNum?: number;
   original_name: string;
   status: string;
   updated_at: string;

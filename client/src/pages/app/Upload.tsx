@@ -1,17 +1,18 @@
+import type React from "react";
 import { useCustomReducer, useErrorHandler } from "@/hooks";
 import { FileUpload, Alert } from "@/reusables";
 import { AddSvg } from "@/svgs";
+
 
 /**
  * 
  * @returns A JSX component that is used in the dashboard page to
  * allow users to upload files.
  */
-export const Upload = () => {
+export const Upload: React.FC = () => {
     const { state, setAlertMsg } = useCustomReducer({});
     const { withErrorHandler } = useErrorHandler()
     const uploadFile = withErrorHandler(async (files: FileList) => {
-        console.log(files.length)
         // This ensures multiple files 
         // are not uploaded.
         if (files.length > 1)
@@ -26,7 +27,7 @@ export const Upload = () => {
         )
         return response
     }, setAlertMsg)
-    return <div className="w-full h-40 my-2 rounded-xl flex justify-between items-center sm:px-0 px-2 ">
+    return <div className="w-full my-4 py-4 rounded-xl flex justify-between items-center sm:px-0 px-2 ">
         <span className="sm:text-xl font-semibold">
             Begin your journey with Parser
         </span>

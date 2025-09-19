@@ -6,7 +6,7 @@ import type { alertMsgInterface, Reducer, ReducerType } from '@/interface';
 // Two actions, either to set the field (from T) or alertMsg
 // to display alerts on screen.
 type payloadActions =
-  | { action: 'setField'; field: string; value: string }
+  | { action: 'setField'; field: string; value: string | number }
   | { action: 'setAlertMsg'; value: alertMsgInterface };
 
 /**
@@ -54,7 +54,7 @@ export const useCustomReducer = <T extends object>(
    * @returns void
    * @example email: 'example@test.com'
    */
-  const setFieldWithValue = (field: string, value: string) => {
+  const setFieldWithValue = (field: string, value: string | number) => {
     dispatch({ action: 'setField', field, value });
   };
 
