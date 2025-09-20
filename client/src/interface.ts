@@ -33,10 +33,10 @@ export type Reducer<T> = {
 export type ErrorHandler = {
   withErrorHandler: <T extends any[]>(
     callback: (...args: T) => Promise<Response | void>,
-    setAlertMsg: (_alertMsg: alertMsgInterface) => void,
-    redirectOnSuccess?: (() => void) | null,
-    redirectOnError?: (() => void) | null
-  ) => (...args: T) => Promise<void>;
+    setAlertMsg?: (_alertMsg: alertMsgInterface) => void,
+    redirectOnSuccess?: ((args: any) => void) | null,
+    redirectOnError?: ((args: any) => void) | null
+  ) => (...args: T) => Promise<void | any>;
 };
 
 // Used in ChatWindow and Message.tsx
@@ -88,6 +88,8 @@ export interface uploadRowInterface {
   status: 'active' | 'processing';
   updated_at: string;
   created_at: string;
+  deleting?: boolean;
+  callback: (...args: any) => void;
 }
 
 export interface messageInterface {

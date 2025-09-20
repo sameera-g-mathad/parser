@@ -10,28 +10,21 @@ import { useNavigate } from "react-router-dom";
  * @returns A JSX Component with the details of each uplaod. As of
  * now only name is displayed.
  */
-export const ListRow: React.FC<uploadRowInterface> = ({ id, original_name, updated_at, status, rowNum }) => {
+export const ListRow: React.FC<uploadRowInterface> = ({ id, original_name, updated_at, status, rowNum, callback, deleting }) => {
     const navigate = useNavigate();
-    const deleteById = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        const response = await fetch(`/api/app/uploads/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
 
-    }
-
+    /**
+     * To navigate to a particular upload chat
+     * interaface.
+     */
     const goTo = () => {
         if (status === 'active') {
             navigate(`/app/uploads/${id}`)
         }
     }
 
-
     return <div
-        className="pdf-list opacity-0 flex justify-between items-center border-2 border-slate-300 bg-white rounded-xl my-2 p-2 px-5 group overflow-hidden cursor-pointer"
+        className={`pdf-list  opacity-0 flex justify-between items-center border-2 border-slate-300 bg-white rounded-xl my-2 p-2 px-5 group overflow-hidden cursor-pointer ${deleting ? 'delete-pdf' : ''}`}
         style={{ animationDelay: `${rowNum! * 0.1}s` }}
         onClick={goTo}
     >
@@ -50,7 +43,7 @@ export const ListRow: React.FC<uploadRowInterface> = ({ id, original_name, updat
                 <PdfSvg className="fill-blue-500" />
             </span>
             {status === 'active' ?
-                <Button callback={deleteById} className="p-2 cursor-pointer transition duration-300 opacity-0 group-hover:opacity-100 translate-x-5 group-hover:translate-x-0 btn-click">
+                <Button callback={(e: React.MouseEvent) => callback(e, id)} className="p-2 cursor-pointer transition duration-300 sm:opacity-0 opacity-100 group-hover:opacity-100 translate-x-5 group-hover:translate-x-0 btn-click">
                     <DeleteSvg className="w-6 h-6 stroke-red-500" />
                 </Button>
                 : ''}
