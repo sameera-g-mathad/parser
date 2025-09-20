@@ -25,6 +25,8 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
     // Total number of pages the pdf has.
     const [totalPages, setTotalPages] = useState<number>(0);
 
+    const [pageAnimation, setPageAnimation] = useState<'pdf-load-page' | 'pdf-next-page' | 'pdf-prev-page'>('pdf-load-page')
+
     /**
      * Method to load the pdf using pdfjs-dist.getDocument()
      * @param url url to load the pdf.
@@ -74,6 +76,7 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
     const incrementPage = () => {
         // requested page should be within the range.
         if (currentPage + 1 <= totalPages) {
+            setPageAnimation('pdf-next-page')
             setCurrentPage(currentPage + 1)
         }
     }
@@ -84,6 +87,7 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
     const decrementPage = () => {
         // requested page should be within the range.
         if (currentPage - 1 >= 1) {
+            setPageAnimation('pdf-prev-page')
             setCurrentPage(currentPage - 1)
         }
     }
@@ -96,6 +100,7 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
     // update moveTo page on change.
     useEffect(() => {
         setCurrentPage(moveToPage)
+        setPageAnimation('pdf-load-page')
     }, [moveToPage])
 
     // render page if pdfdoc or current page changes.
@@ -114,7 +119,7 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
             </span>
             <Button callback={incrementPage}><NextSvg className="btn-click" /></Button>
         </div>
-            <canvas ref={canvasRef} id='pdf-viewer' className="w-full h-[95%] flex-1" />
+            <canvas key={currentPage} ref={canvasRef} id='pdf-viewer' className={`w-full h-[95%] flex-1 ${pageAnimation}`} />
         </> : "Loading"}
     </div>
 };

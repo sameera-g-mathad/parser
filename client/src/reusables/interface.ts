@@ -9,7 +9,7 @@ export interface alertInterface extends RootInterface.className {
 }
 
 export interface buttonInterface extends RootInterface.className {
-  callback: () => void | Promise<void>;
+  callback: (event?: any) => void | Promise<void>;
 }
 
 export interface fileInterface extends RootInterface.className {

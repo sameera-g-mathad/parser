@@ -4,6 +4,7 @@ export * from './ChatWindow';
 export * from './Dashboard';
 export * from './Header';
 export * from './ListFiles';
+export * from './ListRow';
 export * from './Message';
 export * from './PDFWindow';
 export * from './ProtectedRoute';

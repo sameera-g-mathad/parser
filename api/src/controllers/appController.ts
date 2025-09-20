@@ -3,10 +3,14 @@ import {
   S3Client,
   GetObjectCommand,
   GetObjectCommandInput,
+  DeleteObjectCommand,
+  DeleteObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { conversationalRetrievelQA, stream } from '../utils/langchainConfig';
 import {
+  countUploadsbyUserId,
+  deleteUploadById,
   getUploadById,
   insertUpload,
   selectUploads,
@@ -120,10 +124,14 @@ export const getUploads = catchAsync(
     // get all uploads.
     const uploads = await selectUploads(user_id, searchQuery);
 
+    // count the number of uploads created by the user.
+    const countUploads = await countUploadsbyUserId(user_id);
+
     res.status(200).json({
       status: 'success',
       message: 'Succesfull',
       uploads,
+      ...countUploads,
     });
   }
 );
@@ -223,5 +231,41 @@ export const requestLLM = catchAsync(
     res.write(JSON.stringify(pageResponse) + '\n'); // \n is important if there are multiple objects.
     // end the stream.
     res.end();
+  }
+);
+
+/**
+ * Method to delete a particular Upload from the id
+ */
+export const deleteById = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    // 2. Find an upload if present.
+    const upload = await getUploadById(id);
+
+    // 3. if there is no upload or the id was deleted
+    // return back.
+    if (upload === undefined) {
+      return next(new AppError('No file exists', 400));
+    }
+
+    const filename = upload.file_name;
+
+    // 4. Delete it from the s3 bucket.
+    const deleteOptions: DeleteObjectCommandInput = {
+      Bucket: process.env.AWS_BUCKET!,
+      Key: filename,
+    };
+
+    await s3.send(new DeleteObjectCommand(deleteOptions));
+
+    // 5. Delete it from the database
+    const response = await deleteUploadById(id);
+
+    res.status(200).json({
+      status: 'success',
+      message: `${upload.original_name} successfully deleted.`,
+    });
   }
 );
