@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@postgres-lib/*": ["postgres-lib/*"]
+    }
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./api"
+    },
+    {
+      "path": "./worker"
+    },
+    {
+      "path": "./postgres-lib"
+    }
+  ]
+}

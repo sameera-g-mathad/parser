@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import {
+  deleteById,
   getMe,
   getUploads,
   getUploadPdfUrl,
@@ -48,6 +49,10 @@ router.route('/upload').post(upload.single('file'), uploadFile);
 router.route('/get-uploads').get(getUploads);
 
 // Serve requests for the upload id.
-router.route('/uploads/:id').get(getUploadPdfUrl).post(requestLLM);
+router
+  .route('/uploads/:id')
+  .get(getUploadPdfUrl)
+  .post(requestLLM)
+  .delete(deleteById);
 
 export default router;

@@ -39,16 +39,3 @@ Custom class for ellipses.
 .btn-click {
   @apply active:scale-75 transform transition-transform duration-100;
 }
-
-.streaming-logo {
-  animation: streaming 0.5s ease-in infinite alternate;
-}
-
-@keyframes streaming {
-  from {
-    transform: scale(0.5);
-  }
-  to {
-    transform: scale(1);
-  }
-}

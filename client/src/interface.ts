@@ -82,10 +82,10 @@ export interface forgotPasswordInterface {
 }
 
 export interface uploadRowInterface {
-  id?: string;
-  rowNum?: number;
+  id: string;
+  rowNum: number;
   original_name: string;
-  status: string;
+  status: 'active' | 'processing';
   updated_at: string;
   created_at: string;
 }

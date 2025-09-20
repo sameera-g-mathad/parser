@@ -93,11 +93,69 @@ width goes from 0 to 100%
   }
 }
 
-.pdf-view {
+.streaming-logo {
+  animation: streaming 0.5s ease-in infinite alternate;
+}
+
+@keyframes streaming {
+  from {
+    transform: scale(0.5);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.pdf-list {
   animation: pdf_view 0.5s ease-in-out forwards;
 }
 
 @keyframes pdf_view {
+  from {
+    transform: translateX(-20%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+.pdf-load-page {
+  animation: pdf-load-page-animation 0.5s ease-in-out;
+}
+
+@keyframes pdf-load-page-animation {
+  from {
+    transform: translateY(-20%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+.pdf-next-page {
+  animation: pdf-next-page-animation 0.5s ease-in-out;
+}
+
+@keyframes pdf-next-page-animation {
+  from {
+    transform: translateX(20%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+.pdf-prev-page {
+  animation: pdf-prev-page-animation 0.5s ease-in-out;
+}
+
+@keyframes pdf-prev-page-animation {
   from {
     transform: translateX(-20%);
     opacity: 0;

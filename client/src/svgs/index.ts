@@ -1,4 +1,5 @@
 export * from './AddSvg';
+export * from './DeleteSvg';
 export * from './LogoSvg';
 export * from './LogoutSvg';
 export * from './NextSvg';
