@@ -107,10 +107,10 @@ width goes from 0 to 100%
 }
 
 .pdf-list {
-  animation: pdf_view 0.5s ease-in-out forwards;
+  animation: pdf-list-animation 0.5s ease-in-out forwards;
 }
 
-@keyframes pdf_view {
+@keyframes pdf-list-animation {
   from {
     transform: translateX(-20%);
     opacity: 0;
@@ -118,6 +118,19 @@ width goes from 0 to 100%
   to {
     transform: translateX(0%);
     opacity: 1;
+  }
+}
+.delete-pdf {
+  animation: delete-pdf-animation 0.5s ease-in-out forwards;
+}
+@keyframes delete-pdf-animation {
+  from {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-20%);
+    opacity: 0;
   }
 }
 

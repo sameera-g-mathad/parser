@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ListRow } from "./";
 import type { uploadRowInterface } from "@/interface";
-import { Button, Input } from "@/reusables";
+import { Alert, Button, Input } from "@/reusables";
 import { SearchSvg, RefreshSvg } from "@/svgs";
+import { useCustomReducer, useErrorHandler } from "@/hooks";
 
 /**
  * 
@@ -13,11 +14,13 @@ export const ListFiles: React.FC = () => {
     const [data, setData] = useState<uploadRowInterface[]>([])
     const [search, setSearch] = useState<string>('');
     const [count, setCount] = useState<number>(0);
+    const { state, setAlertMsg } = useCustomReducer({});
+    const { withErrorHandler } = useErrorHandler()
     let reqUrl = '/api/app/get-uploads'
 
+
     // get all the uploads from the backend. url is required.
-    const getUploads = async (url: string = reqUrl) => {
-        console.log('working')
+    const getUploads = withErrorHandler(async (url: string = reqUrl) => {
         const response = await fetch(url,
             {
                 method: 'GET',
@@ -29,10 +32,44 @@ export const ListFiles: React.FC = () => {
         const data = await response.json()
         setData(data.uploads)
         setCount(data.count)
-    }
+    })
+
+    /**
+     * To delete a upload by its id. Invoked by ListRow when user deletes.
+     */
+    const deleteById = withErrorHandler(async (e: React.MouseEvent, id: string) => {
+        // this prevents user from visiting the pdf
+        e.stopPropagation();
+
+        // this is to add delete animation to the screen
+        setData(prev => prev.map(el => {
+            if (el.id === id)
+                return { ...el, deleting: true } as uploadRowInterface;
+            return el
+        }))
+
+        // delete the upload from the database.
+        const response = await fetch(`/api/app/uploads/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+
+        // filter the upload from the current uploads.
+        setTimeout(() => {
+            setData(prev => prev.filter(el => el.id !== id))
+            setCount(prevCount => prevCount - 1)
+        }, 300)
+
+        return response
+
+    }, setAlertMsg)
 
 
     useEffect(() => {
+        // this is to create a query string to search
+        // the db for a particular upload.
         let url = reqUrl;
         if (search !== '')
             url += `?search=${encodeURIComponent(search)}`
@@ -55,8 +92,12 @@ export const ListFiles: React.FC = () => {
         </span>
         {
             data.map((el, i) =>
-                <ListRow key={el.id} id={el.id} rowNum={i} original_name={el.original_name} status={el.status} updated_at={el.updated_at} created_at={el.created_at} />
+                <ListRow deleting={el.deleting} callback={deleteById} key={el.id} id={el.id} rowNum={i} original_name={el.original_name} status={el.status} updated_at={el.updated_at} created_at={el.created_at} />
             )
+        }
+        {
+            state.alertMsg['status'] &&
+            <Alert className={state.alertMsg['type']} message={state.alertMsg['message']} />
         }
     </div>
 };

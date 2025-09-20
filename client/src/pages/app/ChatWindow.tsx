@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TextBox } from "@/reusables";
-import { Message } from "./";
+import { useErrorHandler } from "@/hooks";
 import type { className, message, chatWindowInterface } from "@/interface";
 import { useLocation } from "react-router-dom";
+import { Message } from "./";
 
 
 /**
@@ -14,6 +15,7 @@ import { useLocation } from "react-router-dom";
 export const ChatWindow: React.FC<className & chatWindowInterface> = ({ className, onPageClick }) => {
     const [messages, setMessages] = useState<message[]>([]);
     const [streaming, setStreaming] = useState<boolean>(false);
+    const { withErrorHandler } = useErrorHandler()
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const location = useLocation();
     const decoder = new TextDecoder();
@@ -28,7 +30,7 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
 
     // method called when the query is submitted to the 
     // server.
-    const onSubmit = async (query: string) => {
+    const onSubmit = withErrorHandler(async (query: string) => {
         setStreaming(true)
         setMessages(prevMsgs =>
             [
@@ -54,10 +56,11 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
             if (done) break;
 
             const buffer = decoder.decode(value, { stream: true })
-            const lines = buffer.split('\n')
+            const lines = buffer.split('\n') // important: there can be more than one object and parsing fails if not for this.
             lines.pop() // this removes unwanted '' from the list
 
             for (let line of lines) {
+                // object sent from server is either {event: token, token} or {event: pageNumber, pageNumbers} for now.
                 const lineObj: { event: 'token' | 'pageNumber', token?: string, pageNumbers?: number[] } = JSON.parse(line);
                 if (lineObj.event === 'token') {
                     message += lineObj.token;
@@ -82,7 +85,7 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
 
         }
         setStreaming(false)
-    }
+    })
 
     return <div className={`grid grid-rows-16 h-full ${className}`}>
         <div className="row-start-1 row-span-14 overflow-y-scroll scrollbar-hide" ref={chatWindowRef}>
