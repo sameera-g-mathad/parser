@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TextBox } from "@/reusables";
 import { useErrorHandler } from "@/hooks";
-import type { className, message, chatWindowInterface } from "@/interface";
+import type { className, chat, chatWindowInterface } from "@/interface";
 import { useLocation } from "react-router-dom";
 import { Message } from "./";
 
@@ -12,8 +12,8 @@ import { Message } from "./";
  * @returns A JSX element that displays the chat window with both the text box and
  * the messages.
  */
-export const ChatWindow: React.FC<className & chatWindowInterface> = ({ className, onPageClick }) => {
-    const [messages, setMessages] = useState<message[]>([]);
+export const ChatWindow: React.FC<className & chatWindowInterface> = ({ className, history, onPageClick }) => {
+    const [messages, setMessages] = useState<chat[]>([]);
     const [streaming, setStreaming] = useState<boolean>(false);
     const { withErrorHandler } = useErrorHandler()
     const chatWindowRef = useRef<HTMLDivElement>(null);
@@ -28,6 +28,10 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
         }
     }, [messages])
 
+    useEffect(() => {
+        setMessages([...history])
+    }, [history])
+
     // method called when the query is submitted to the 
     // server.
     const onSubmit = withErrorHandler(async (query: string) => {
@@ -35,8 +39,8 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
         setMessages(prevMsgs =>
             [
                 ...prevMsgs,
-                { by: 'human', content: query },
-                { by: 'ai', content: "" }]
+                { type: 'human', message: query },
+                { type: 'ai', message: "" }]
         )
         const response = await fetch(`/api${location.pathname}`, {
             method: 'POST',
@@ -68,7 +72,7 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
                     setMessages(prevMsgs => {
                         const newMsgs = [...prevMsgs];
                         // overwrite the last message.
-                        newMsgs[prevMsgs.length - 1] = { by: 'ai', 'content': message }
+                        newMsgs[prevMsgs.length - 1] = { type: 'ai', 'message': message }
                         return newMsgs;
                     });
                 }
@@ -76,7 +80,7 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
                     setMessages(prevMsgs => {
                         const lastIndex = prevMsgs.length - 1
                         // overwrite the last message.
-                        if (prevMsgs[lastIndex].by === 'ai')
+                        if (prevMsgs[lastIndex].type === 'ai')
                             prevMsgs[lastIndex] = { ...prevMsgs[lastIndex], pageNumbers: lineObj.pageNumbers }
                         return prevMsgs;
                     });
@@ -91,7 +95,7 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
         <div className="row-start-1 row-span-14 overflow-y-scroll scrollbar-hide" ref={chatWindowRef}>
             {
                 messages.map(
-                    (el, index) => <Message key={index} message={el} streaming={index === messages.length - 1 ? streaming : false} onPageClick={onPageClick} />
+                    (el, index) => <Message key={index} chat={el} streaming={index === messages.length - 1 ? streaming : false} onPageClick={onPageClick} />
                 )
             }
         </div>

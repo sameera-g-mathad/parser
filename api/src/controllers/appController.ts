@@ -1,4 +1,4 @@
-import { NextFunction, Request, response, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import {
   S3Client,
   GetObjectCommand,
@@ -17,6 +17,10 @@ import {
 } from '../models/uploadModel';
 import { AppError, catchAsync } from '../utils';
 import { redisClient, redisPub } from '../db';
+import {
+  getConversationById,
+  insertConversation,
+} from '../models/conversationModel';
 
 // create a s3 client with the
 // region and credentials.
@@ -27,6 +31,10 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_KEY!,
   },
 });
+
+const getConversationKey = (id: string): string => {
+  return `conversation:${id}`;
+};
 
 /**
  * @returns A response that the user is logged In along with user
@@ -167,14 +175,39 @@ export const getUploadPdfUrl = catchAsync(
       expiresIn: 300,
     });
 
-    // 5. Return the success response.
-    res.status(200).json({
-      status: 'success',
-      message: 'successful',
-      url,
-    });
+    // 5. store the result as getting conversations are pending.
+    (req as any).url = url;
+
+    // 6. send next.
+    next();
   }
 );
+
+/**
+ * Helper method to get conversations into redis sever from postgres
+ * for faster access.
+ * @param conversationKey Conversation key to check in the redis db.
+ * @param id Id of the upload if in case redis data is expired.
+ * @returns
+ */
+const getConversationByKey = async (conversationKey: string, id: string) => {
+  // check if the covnersation for an upload exists.
+  if (!(await redisClient.exists(conversationKey))) {
+    // if not get the conversations from the db.
+    const history = await getConversationById(id);
+
+    if (history !== undefined && history.length !== 0) {
+      // stringify the object to store.
+      const serialized = history.map((el: any) => JSON.stringify(el));
+      // store array of objects in redis.
+      await redisClient.rPush(conversationKey, serialized);
+    }
+  }
+  // return the parse objects back.
+  return (await redisClient.lRange(conversationKey, 0, -1)).map((el) =>
+    JSON.parse(el)
+  );
+};
 
 /**
  * Method to stream response from llm to the frontend.
@@ -189,10 +222,14 @@ export const requestLLM = catchAsync(
     // get id from url.
     const { id } = req.params;
 
+    // get the conversations.
+    const conversationKey = getConversationKey(id);
+    let chatHistory = await getConversationByKey(conversationKey, id);
+
     // retreive context and standalone data.
     const response = await conversationalRetrievelQA.invoke({
       question: query,
-      chatHistory: [], // will implement this.
+      chatHistory,
       uploadId: id,
     });
 
@@ -230,7 +267,46 @@ export const requestLLM = catchAsync(
     // Write the pageNumbers,
     res.write(JSON.stringify(pageResponse) + '\n'); // \n is important if there are multiple objects.
     // end the stream.
+
+    //update redis for faster access.
+    const messages = [
+      JSON.stringify({ message: query, type: 'human' }),
+      JSON.stringify({
+        message: aiMessage,
+        type: 'ai',
+      }),
+    ];
+    await redisClient.rPush(conversationKey, messages);
+    await redisClient.expire(conversationKey, 300);
+
+    // store both the human messages in the database.
+    // First store the human message.
+    await insertConversation(id, query, 'human');
+
+    // second store the ai message.
+    await insertConversation(id, aiMessage, 'ai');
+
+    // end the stream
     res.end();
+  }
+);
+
+/**
+ * Method to get the chat history from the database.
+ */
+export const getConversations = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // get the id from the url
+    const { id } = req.params;
+    // get conversation key, ex: conversation:id
+    const conversationKey = getConversationKey(id);
+    // get conversations.
+    const history = await getConversationByKey(conversationKey, id);
+    res.status(200).json({
+      status: 'success',
+      history,
+      url: (req as any).url,
+    });
   }
 );
 

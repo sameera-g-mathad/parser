@@ -40,14 +40,14 @@ export type ErrorHandler = {
 };
 
 // Used in ChatWindow and Message.tsx
-export type message =
+export type chat =
   | {
-      by: 'human';
-      content: string;
+      type: 'human';
+      message: string;
     }
   | {
-      by: 'ai';
-      content: string;
+      type: 'ai';
+      message: string;
       pageNumbers?: number[];
     };
 
@@ -93,13 +93,14 @@ export interface uploadRowInterface {
 }
 
 export interface messageInterface {
-  message: message;
+  chat: chat;
   streaming: boolean;
   onPageClick: (page: number) => void;
 }
 
 export interface chatWindowInterface {
   onPageClick: (page: number) => void;
+  history: chat[];
 }
 
 export interface pdfWindowInterface {

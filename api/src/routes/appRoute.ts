@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import {
   deleteById,
+  getConversations,
   getMe,
   getUploads,
   getUploadPdfUrl,
@@ -51,7 +52,7 @@ router.route('/get-uploads').get(getUploads);
 // Serve requests for the upload id.
 router
   .route('/uploads/:id')
-  .get(getUploadPdfUrl)
+  .get(getUploadPdfUrl, getConversations)
   .post(requestLLM)
   .delete(deleteById);
 
