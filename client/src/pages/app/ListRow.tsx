@@ -43,9 +43,13 @@ export const ListRow: React.FC<uploadRowInterface> = ({ id, original_name, updat
                 <PdfSvg className="fill-blue-500" />
             </span>
             {status === 'active' ?
-                <Button callback={(e: React.MouseEvent) => callback(e, id)} className="p-2 cursor-pointer transition duration-300 sm:opacity-0 opacity-100 group-hover:opacity-100 translate-x-5 group-hover:translate-x-0 btn-click">
+                <Button
+                    callback={(e: React.MouseEvent) => callback(e, id)}
+                    className="p-2 cursor-pointer transition duration-300 opacity-100 sm:opacity-0 sm:translate-x-5 group-hover:opacity-100 group-hover:translate-x-0 btn-click"
+                >
                     <DeleteSvg className="w-6 h-6 stroke-red-500" />
                 </Button>
+
                 : ''}
         </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChatWindow, PDFWindow } from "./";
 import { useCustomReducer, useErrorHandler } from "@/hooks";
@@ -10,6 +10,7 @@ import { useCustomReducer, useErrorHandler } from "@/hooks";
  */
 export const Chat: React.FC = () => {
     const { state, setFieldWithValue } = useCustomReducer({ pdfUrl: '', moveToPage: 1 })
+    const [history, setHistory] = useState([])
     const { withErrorHandler } = useErrorHandler()
     const location = useLocation()
     const navigate = useNavigate()
@@ -36,6 +37,7 @@ export const Chat: React.FC = () => {
         const clone = response.clone();
         const data = await response.json();
         setFieldWithValue('pdfUrl', data.url)
+        setHistory(data.history)
         return clone
     }, undefined, null, onError)
 
@@ -43,7 +45,7 @@ export const Chat: React.FC = () => {
     const { pdfUrl, moveToPage } = state;
 
     return <div className="w-full h-screen flex justify-between">
-        <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" onPageClick={(page: number) => setFieldWithValue('moveToPage', page)} /></div>
+        <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" history={history} onPageClick={(page: number) => setFieldWithValue('moveToPage', page)} /></div>
         <div className="sm:w-full">
             {pdfUrl ? <PDFWindow url={pdfUrl} moveToPage={moveToPage} /> : ''}
         </div>
