@@ -2,15 +2,16 @@ import React, { useEffect, useState } from "react";
 import { ListRow } from "./";
 import type { uploadRowInterface } from "@/interface";
 import { Alert, Button, Input } from "@/reusables";
-import { SearchSvg, RefreshSvg } from "@/svgs";
+import { SearchSvg, RefreshSvg, MyDocuments } from "@/svgs";
 import { useCustomReducer, useErrorHandler } from "@/hooks";
+import type { listFilesInterface } from "@/interface";
 
 /**
  * 
  * @returns A JSX component that is used to display each upload
  * on the screen
  */
-export const ListFiles: React.FC = () => {
+export const ListFiles: React.FC<listFilesInterface> = ({ callback }) => {
     const [data, setData] = useState<uploadRowInterface[]>([])
     const [search, setSearch] = useState<string>('');
     const { state, setAlertMsg } = useCustomReducer({});
@@ -59,6 +60,7 @@ export const ListFiles: React.FC = () => {
             setData(prev => prev.filter(el => el.id !== id))
         }, 300)
 
+
         return response
 
     }, setAlertMsg)
@@ -70,19 +72,28 @@ export const ListFiles: React.FC = () => {
         let url = reqUrl;
         if (search !== '')
             url += `?search=${encodeURIComponent(search)}`
-        getUploads(url)
+        getUploads(url);
     }, [search])
 
-    return <div className="flex flex-col ">
-        <div className="flex">
-            <div className="flex flex-1 border-2 border-slate-300 rounded-xl p-2 my-2 group">
-                <SearchSvg className="w-7 h-7 fill-white! stroke-slate-400 group-hover:scale-90" />
-                <Input type='text' value={search} callback={(value: string) => setSearch(value)} placeholder="Search your uploads!" className="outline-none flex-1 pl-3 placeholder:text-[15px]" />
+    return <div className="flex flex-col flex-1 px-2 rounded-xl bg-white overflow-hidden">
+        <div className="flex justify-between gap-40 py-4">
+            <div className="flex gap-3 items-center ">
+                <MyDocuments className="w-12 h-12 border p-2 rounded-xl fill-indigo-500 bg-indigo-100 border-indigo-500" />
+                <div className="flex flex-col">
+                    <span className="capitalize font-semibold">My Documents</span>
+                    <span className="first-letter:capitalize">manage and chat with you documents</span>
+                </div>
             </div>
-            <Button callback={() => getUploads()} className="flex border rounded-xl my-2 ml-2 items-center justify-between capitalize p-2 cursor-pointer group btn-click">
-                <RefreshSvg className="w-5 h-5 stroke-slate-300 mr-2 group-hover:-rotate-360 transform transition-transform duration-500" />
-                refresh
-            </Button>
+            <div className="flex justify-between flex-1">
+                <div className="flex flex-1 border border-slate-300 bg-slate-100 fill-slate-100 rounded-xl p-1 my-2 group">
+                    <SearchSvg className="w-7 h-7 stroke-slate-400 group-hover:scale-90" />
+                    <Input type='text' value={search} callback={(value: string) => setSearch(value)} placeholder="Search your uploads!" className="outline-none flex-1 pl-3 placeholder:text-[15px]" />
+                </div>
+                <Button callback={() => { getUploads(); callback() }} className="flex border border-pink-500 rounded-xl my-2 ml-2 items-center justify-between capitalize p-2 cursor-pointer group btn-click stroke-pink-500 text-pink-500">
+                    <RefreshSvg className="w-5 h-5 mr-2 group-hover:-rotate-360 transform transition-transform duration-500" />
+                    refresh
+                </Button>
+            </div>
         </div>
         {
             data.map((el, i) =>

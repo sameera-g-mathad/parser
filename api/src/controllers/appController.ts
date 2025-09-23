@@ -65,8 +65,8 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
  */
 export const getUploadStatsById = catchAsync(
   async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const stats = await getStatsById(id);
+    const { user_id } = req.params;
+    const stats = await getStatsById(user_id);
     res.status(200).json({
       status: 'success',
       stats,

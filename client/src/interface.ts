@@ -112,3 +112,7 @@ export interface documentCardInterface extends className {
   title: string;
   value: number;
 }
+
+export interface listFilesInterface {
+  callback: () => void;
+}

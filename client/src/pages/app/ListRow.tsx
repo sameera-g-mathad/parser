@@ -1,7 +1,7 @@
 import React from "react";
 import type { uploadRowInterface } from "@/interface";
 import { Button } from "@/reusables";
-import { PdfSvg, DeleteSvg } from "@/svgs";
+import { CalenderSvg, DeleteSvg, PdfSvg } from "@/svgs";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -24,18 +24,20 @@ export const ListRow: React.FC<uploadRowInterface> = ({ id, original_name, updat
     }
 
     return <div
-        className={`pdf-list  opacity-0 flex justify-between items-center border-2 border-slate-300 bg-white rounded-xl my-2 p-2 px-5 group overflow-hidden cursor-pointer ${deleting ? 'delete-pdf' : ''}`}
+        className={`pdf-list  opacity-0 flex justify-between items-center border border-slate-300 bg-white rounded-xl my-2 p-2 px-5 group overflow-hidden cursor-pointer  hover:shadow ${deleting ? 'delete-pdf' : ''}`}
         style={{ animationDelay: `${rowNum! * 0.1}s` }}
         onClick={goTo}
     >
-        <div className="flex flex-col flex-5">
-            <span className="w-64 capitalize font-semibold ellipses">{original_name}</span>
-            <span className="flex items-center gap-1 text-xs mt-2">
+        <div className="flex flex-col flex-5 gap-2">
+            <span className="capitalize font-semibold ellipses">{original_name}</span>
+            <span className="flex items-center gap-1 text-[10px]">
                 <span>
                     <span className={`p-0.5 px-2 capitalize border font-semibold rounded-lg ${status === 'active' ? 'text-green-600 border-green-600 bg-green-100' : 'text-slate-700 border-slate-600 bg-slate-100'}`}>{status}</span>
                 </span>
-                <span className="w-1 h-1 rounded-full bg-slate-400"></span>
-                <span>{new Date(updated_at).toDateString()}</span>
+            </span>
+            <span className="flex gap-2 items-center">
+                <CalenderSvg className="w-3 h-3 stroke-slate-300" />
+                <span className="text-[10px]">{new Date(updated_at).toDateString()}</span>
             </span>
         </div>
         <div className="flex justify-between items-center flex-1">
