@@ -13,7 +13,6 @@ import { useCustomReducer, useErrorHandler } from "@/hooks";
 export const ListFiles: React.FC = () => {
     const [data, setData] = useState<uploadRowInterface[]>([])
     const [search, setSearch] = useState<string>('');
-    const [count, setCount] = useState<number>(0);
     const { state, setAlertMsg } = useCustomReducer({});
     const { withErrorHandler } = useErrorHandler()
     let reqUrl = '/api/app/get-uploads'
@@ -31,7 +30,6 @@ export const ListFiles: React.FC = () => {
         )
         const data = await response.json()
         setData(data.uploads)
-        setCount(data.count)
     })
 
     /**
@@ -59,7 +57,6 @@ export const ListFiles: React.FC = () => {
         // filter the upload from the current uploads.
         setTimeout(() => {
             setData(prev => prev.filter(el => el.id !== id))
-            setCount(prevCount => prevCount - 1)
         }, 300)
 
         return response
@@ -87,9 +84,6 @@ export const ListFiles: React.FC = () => {
                 refresh
             </Button>
         </div>
-        <span className="my-2 text-[14px]">
-            {count} uploads with Parser.
-        </span>
         {
             data.map((el, i) =>
                 <ListRow deleting={el.deleting} callback={deleteById} key={el.id} id={el.id} rowNum={i} original_name={el.original_name} status={el.status} updated_at={el.updated_at} created_at={el.created_at} />

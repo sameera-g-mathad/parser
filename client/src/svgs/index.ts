@@ -1,3 +1,4 @@
+export * from './ActiveSvg';
 export * from './AddSvg';
 export * from './DeleteSvg';
 export * from './LogoSvg';
@@ -5,6 +6,7 @@ export * from './LogoutSvg';
 export * from './NextSvg';
 export * from './PageNumberSvg';
 export * from './PdfSvg';
+export * from './ProcessingSvg';
 export * from './RefreshSvg';
 export * from './SearchSvg';
 export * from './SendSvg';

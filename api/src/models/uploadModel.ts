@@ -34,6 +34,25 @@ export const getUploadById = async (uploadId: string): Promise<any> => {
 };
 
 /**
+ * Method to return the stats of the uploads.
+ * @param uploadId Upload id for which stats needs to be returned.
+ * @returns Returns the total count, active and processing counts
+ */
+export const getStatsById = async (uploadId: string): Promise<any> => {
+  const stats = await pg.query(
+    `SELECT 
+      COALESCE(COUNT(*),0) AS count, 
+      COALESCE(SUM(CASE WHEN status='active' THEN 1 ELSE 0 END),0) as active, 
+      COALESCE(SUM(CASE WHEN status='processing' THEN 1 ELSE 0 END),0) as processing
+    FROM UPLOADS 
+    WHERE user_id=$1
+`,
+    [uploadId]
+  );
+  return stats.rows[0];
+};
+
+/**
  * Returns the uploads of the user.
  * @param user_id User Id to return all of their uploded pdfs.
  * @param searchQuery Name of the file typed by the user.

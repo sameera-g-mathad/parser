@@ -107,3 +107,8 @@ export interface pdfWindowInterface {
   url: string;
   moveToPage: number;
 }
+
+export interface documentCardInterface extends className {
+  title: string;
+  value: number;
+}
