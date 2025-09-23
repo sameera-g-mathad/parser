@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LogoSvg } from "@/svgs";
+import { LetsGoSvg, LogoSvg } from "@/svgs";
 
 /**
  * 
@@ -7,11 +7,13 @@ import { LogoSvg } from "@/svgs";
  */
 export const Home = () => {
     return <div className="w-full h-screen flex justify-center items-center">
-        <div className="absolute top-1/2 left-1/2 w-[70%] h-[70%] bg-gradient-to-tr blur-3xl rounded-full from-blue-300 via-pink-300 to-green-300 transform -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute top-1/2 left-1/2 bg-[linear-gradient(to_top_right,#a5b4fc,#f9a8d4_25%,#fdba74_50%,#5eead4_75%,#f0abfc)] blur-3xl transform -translate-x-1/2 -translate-y-1/2 homepage-animate"></div>
         <div className="flex flex-col gap-5 justify-center items-center z-10">
-            <LogoSvg className="w-32 h-32 fill-purple-800" />
-            <p>Parser</p>
-            <Link to="/auth/sign-in">Lets GO</Link>
+            <LogoSvg className="w-32 h-32 fill-transparent stroke-white stroke-20 logo-animate" />
+            <span className="conversation text-xl tracking-wider uppercase text-slate-600">Parser</span>
+            <Link to="/auth/sign-in">
+                <LetsGoSvg className="w-6 h-6 fill-white btn-click letsgo-animate" />
+            </Link>
         </div>
     </div>;
 };
