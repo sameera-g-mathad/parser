@@ -49,6 +49,7 @@ export type chat =
       type: 'ai';
       message: string;
       pageNumbers?: number[];
+      runningQuestion: string;
     };
 
 export interface className {
@@ -106,6 +107,7 @@ export interface chatWindowInterface {
 export interface pdfWindowInterface {
   url: string;
   moveToPage: number;
+  pdfName: string;
 }
 
 export interface documentCardInterface extends className {

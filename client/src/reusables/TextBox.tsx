@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import type { textBoxInterface } from "./interface";
 import { Button } from "./Button";
 import { SendSvg } from "@/svgs";
@@ -15,38 +15,70 @@ import { SendSvg } from "@/svgs";
 export const TextBox: React.FC<textBoxInterface> = ({ placeholder, onSubmit }) => {
     const [scrollHeight, setScrollHeight] = useState<number>(30);
     const [query, setQuery] = useState<string>("");
+    const divRef = useRef<HTMLDivElement>(null);
+
+    /**
+     * Method to set query, this takes the text content of 
+     * the div tag.
+     * @returns void
+     */
+    const onChange = () => {
+        if (!divRef.current) return;
+        const message = divRef.current.innerText
+        // If the value if not a enter of empty on back space, then set the query.
+        if (message && message !== '' && message !== '\n') {
+            setQuery(message)
+            // adjust the textbox based on the text entered.
+            setScrollHeight(divRef.current.scrollHeight < 80 ? divRef.current.scrollHeight : 80)
+        }
+        else {
+            // set the textbox back to empty and default height.
+            setQuery("")
+            setScrollHeight(30)
+        }
+    }
+
+    /**
+     * This method submits the query on enter.
+     * @param e Keyboard event, in this case a enter event.
+     * @returns 
+     */
+    const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (!divRef.current) return
+        if (query.trim() === '') return
+        // When the enter button is clicked.
+        if (e.key.toLowerCase() === 'enter') {
+            onSubmit(query);
+            setQuery('');
+            divRef.current.innerText = ''
+        }
+    }
+
+    /**
+     * Method that submits the query on button click.
+     * @returns void
+     */
+    const onButtonClick = () => {
+        if (!divRef.current) return;
+        if (query.trim() === '')
+            return;
+        onSubmit(query)
+        setQuery('');
+        divRef.current.innerText = ''
+    }
 
     return <div className="auth-input border flex items-center rounded-2xl! p-1">
-        <textarea
+        <div
             className={` resize-none flex items-center flex-1! outline-none placeholder:font-semibold placeholder-slate-500 p-0.5`}
-            placeholder={placeholder}
+            contentEditable={true}
+            ref={divRef}
             style={{ height: scrollHeight }}
-            value={query}
-            onChange={(e) => {
-                // If the value if not a enter of empty on back space, then set the query.
-                if (e.target.value && e.target.value !== '' && e.target.value !== '\n') {
-                    setQuery(e.target.value)
-                    // adjust the textbox based on the text entered.
-                    setScrollHeight(e.target.scrollHeight < 80 ? e.target.scrollHeight : 80)
-                }
-                else {
-                    // set the textbox back to empty and default height.
-                    setQuery("")
-                    setScrollHeight(30)
-                }
-            }
-            }
-            onKeyDown={(e) => {
-                if (query.trim() === '') return
-                // When the enter button is clicked.
-                if (e.key.toLowerCase() === 'enter') {
-                    onSubmit(query);
-                    setQuery('');
-                }
-            }
-            }
-        />
-        <Button className="btn-click" callback={() => { if (query.trim() !== '') return; onSubmit(query) }}>
+            onInput={onChange}
+            onKeyDown={onKeyDown}
+        >
+            {query === "" ? <span className="text-slate-600 pointer-events-none select-none">{placeholder}</span> : ''}
+        </div>
+        <Button className="btn-click" callback={onButtonClick}>
             <SendSvg className="stroke-slate-700 w-7! h-7!" />
         </Button>
     </div>;

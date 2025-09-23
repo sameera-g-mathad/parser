@@ -195,6 +195,7 @@ export const getUploadPdfUrl = catchAsync(
 
     // 5. store the result as getting conversations are pending.
     (req as any).url = url;
+    (req as any).original_name = upload.original_name;
 
     // 6. send next.
     next();
@@ -250,6 +251,19 @@ export const requestLLM = catchAsync(
       chatHistory,
       uploadId: id,
     });
+
+    // Important to send streams to the frontend.
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('Connection', 'keep-alive');
+
+    // send the running context for user to view.
+    res.write(
+      JSON.stringify({
+        event: 'runningQuestion',
+        runningQuestion: response.output.question,
+      }) + '\n'
+    );
 
     // stream response to the user. Sending
     // of response is handled inside. The message
@@ -324,6 +338,7 @@ export const getConversations = catchAsync(
       status: 'success',
       history,
       url: (req as any).url,
+      originalName: (req as any).original_name,
     });
   }
 );

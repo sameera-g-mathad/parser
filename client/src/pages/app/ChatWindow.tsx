@@ -40,7 +40,7 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
             [
                 ...prevMsgs,
                 { type: 'human', message: query },
-                { type: 'ai', message: "" }]
+                { type: 'ai', message: "", runningQuestion: '' }]
         )
         const response = await fetch(`/api${location.pathname}`, {
             method: 'POST',
@@ -65,15 +65,26 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
 
             for (let line of lines) {
                 // object sent from server is either {event: token, token} or {event: pageNumber, pageNumbers} for now.
-                const lineObj: { event: 'token' | 'pageNumber', token?: string, pageNumbers?: number[] } = JSON.parse(line);
+                const lineObj: { event: 'token' | 'pageNumber' | 'runningQuestion', token?: string, pageNumbers?: number[], runningQuestion?: string } = JSON.parse(line);
                 if (lineObj.event === 'token') {
                     message += lineObj.token;
 
                     setMessages(prevMsgs => {
-                        const newMsgs = [...prevMsgs];
+                        const newMsg = [...prevMsgs]
+                        const lastIndex = prevMsgs.length - 1;
                         // overwrite the last message.
-                        newMsgs[prevMsgs.length - 1] = { type: 'ai', 'message': message }
-                        return newMsgs;
+                        if (prevMsgs[lastIndex].type === 'ai')
+                            newMsg[lastIndex] = { ...prevMsgs[lastIndex], message: message }
+                        return newMsg;
+                    });
+                }
+                else if (lineObj.event === 'pageNumber') {
+                    setMessages(prevMsgs => {
+                        const lastIndex = prevMsgs.length - 1
+                        // overwrite the last message.
+                        if (prevMsgs[lastIndex].type === 'ai')
+                            prevMsgs[lastIndex] = { ...prevMsgs[lastIndex], pageNumbers: lineObj.pageNumbers }
+                        return prevMsgs;
                     });
                 }
                 else {
@@ -81,7 +92,7 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
                         const lastIndex = prevMsgs.length - 1
                         // overwrite the last message.
                         if (prevMsgs[lastIndex].type === 'ai')
-                            prevMsgs[lastIndex] = { ...prevMsgs[lastIndex], pageNumbers: lineObj.pageNumbers }
+                            prevMsgs[lastIndex] = { ...prevMsgs[lastIndex], runningQuestion: lineObj.runningQuestion || '' }
                         return prevMsgs;
                     });
                 }
@@ -99,11 +110,13 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
                 )
             }
         </div>
-        <div className="row-start-15 row-span-full flex justify-center items-center">
+        <div className="row-start-15 row-span-full flex flex-col justify-center items-center">
             <TextBox placeholder="How can i help today?"
                 onSubmit={onSubmit}
             />
+            <span className="capitalize pt-2">powered by ChatGPT</span>
         </div>
+
     </div>;
 };
 

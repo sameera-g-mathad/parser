@@ -3,7 +3,7 @@ import { GlobalWorkerOptions, getDocument, type PDFDocumentLoadingTask, type PDF
 import pdfWorker from "pdfjs-dist/build/pdf.worker.mjs?url";
 import type { pdfWindowInterface } from "@/interface";
 import { Button } from "@/reusables";
-import { NextSvg } from "@/svgs";
+import { NextSvg, PdfSvg } from "@/svgs";
 
 // needed as a worker for pdfjs to run process in the
 // background.
@@ -16,7 +16,7 @@ GlobalWorkerOptions.workerSrc = pdfWorker
  * component renders.
  * @returns A JSX Component to view the pdf on the screen.
  */
-export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => {
+export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage, pdfName }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     // Pdf document.
     const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
@@ -59,7 +59,7 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
         // get the current page.
         const page: PDFPageProxy = await pdfDoc.getPage(currentPage);
         // scale: sets how sharp the page should look.
-        const viewport = page.getViewport({ scale: 3 })
+        const viewport = page.getViewport({ scale: 2 })
 
         const canvas = canvasRef.current!;
         const ctx = canvas.getContext('2d')!;
@@ -109,18 +109,32 @@ export const PDFWindow: React.FC<pdfWindowInterface> = ({ url, moveToPage }) => 
         renderPage()
     }, [pdfDoc, currentPage])
 
-    return <div className="w-full h-full p-2">
-        {pdfDoc ? <><div className="flex justify-end py-1 gap-3">
-            <Button callback={decrementPage}><NextSvg className="rotate-180 btn-click" /></Button>
-            <span className="font-semibold text-[14px] flex gap-2">
-                <span>{currentPage}</span>
-                <span>/</span>
-                <span>{totalPages}</span>
-            </span>
-            <Button callback={incrementPage}><NextSvg className="btn-click" /></Button>
+    return <div className="w-full h-full flex flex-col border border-slate-200">
+        <div className="flex justify-between items-center p-4 border-b border-slate-200 shadow-md">
+            <div className="flex items-center gap-3">
+                <PdfSvg className="w-12 h-12 p-2 border rounded-xl bg-blue-100 fill-blue-500 border-blue-500" />
+                <span className="flex flex-col gap-0.5">
+                    <span className="text-xl">Document Viewer</span>
+                    <span>{pdfName}</span>
+                </span>
+            </div>
+            <div className="flex justify-between items-center rounded-lg border bg-teal-100 fill-teal-500 border-teal-500 ">
+                <Button callback={decrementPage}><NextSvg className="rotate-180 btn-click w-7 h-7 p-1.5" /></Button>
+                <span className="text-sm flex gap-2">
+                    <span className="first-letter:capitalize">page {currentPage} of {totalPages} </span>
+                </span>
+                <Button callback={incrementPage}><NextSvg className="btn-click  w-7 h-7 p-1.5" /></Button>
+            </div>
         </div>
-            <canvas key={currentPage} ref={canvasRef} id='pdf-viewer' className={`w-full h-[95%] flex-1 ${pageAnimation}`} />
-        </> : "Loading"}
+        {
+            pdfDoc ?
+                <canvas key={currentPage} ref={canvasRef} id='pdf-viewer' className={`w-full h-[50%] p-4 flex-1 ${pageAnimation}`} /> :
+                <div className="w-full h-full flex justify-center items-center bg-white m-4">
+                    <span className="font-semibold text-lg text-slate-500 animate-pulse">{pdfName}.</span>
+                </div>
+        }
+
+
     </div>
 };
 

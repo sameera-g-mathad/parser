@@ -9,7 +9,7 @@ import { useCustomReducer, useErrorHandler } from "@/hooks";
  * a chat window for the user to ask questions.
  */
 export const Chat: React.FC = () => {
-    const { state, setFieldWithValue } = useCustomReducer({ pdfUrl: '', moveToPage: 1 })
+    const { state, setFieldWithValue } = useCustomReducer({ pdfUrl: '', moveToPage: 1, fileName: '' })
     const [history, setHistory] = useState([])
     const { withErrorHandler } = useErrorHandler()
     const location = useLocation()
@@ -37,17 +37,18 @@ export const Chat: React.FC = () => {
         const clone = response.clone();
         const data = await response.json();
         setFieldWithValue('pdfUrl', data.url)
+        setFieldWithValue('fileName', data.originalName)
         setHistory(data.history)
         return clone
     }, undefined, null, onError)
 
     useEffect(() => { getPdfUrl() }, []);
-    const { pdfUrl, moveToPage } = state;
+    const { pdfUrl, moveToPage, fileName } = state;
 
     return <div className="w-full h-screen flex justify-between">
         <div className="w-full flex justify-center "><ChatWindow className="w-[90%]" history={history} onPageClick={(page: number) => setFieldWithValue('moveToPage', page)} /></div>
         <div className="sm:w-full">
-            {pdfUrl ? <PDFWindow url={pdfUrl} moveToPage={moveToPage} /> : ''}
+            {pdfUrl ? <PDFWindow url={pdfUrl} moveToPage={moveToPage} pdfName={fileName} /> : ''}
         </div>
     </div>;
 };
