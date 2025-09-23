@@ -11,10 +11,10 @@ import type { documentCardInterface } from '@/interface';
  * @returns 
  */
 export const DocumentCard: React.FC<PropsWithChildren & documentCardInterface> = ({ className, children, title, value }) => {
-    return <div className={`border rounded-xl  w-full h-32 flex justify-between items-center p-4 bg-white ${className}`}>
+    return <div className={`border rounded-xl  w-full h-32 flex justify-between items-center p-4 bg-white hover:scale-99 transform transition-transform duration-200 ${className}`}>
         <span className="flex flex-col">
-            <span className="text-lg capitalize">{title}</span>
-            <span>{value}</span>
+            <span className="capitalize">{title}</span>
+            <span className='font-bold text-xl'>{value}</span>
         </span>
         <span>
             {children}

@@ -23,14 +23,14 @@ app.use(cors());
 app.use(morgan('dev'));
 
 // rate-limiter
-app.use(
-  '/api',
-  rateLimit({
-    max: 100,
-    windowMs: 60 * 60 * 1000, // 1hr
-    message: 'Too many requests from the used ip, try again after some time.',
-  })
-);
+// app.use(
+//   '/api',
+//   rateLimit({
+//     max: 100,
+//     windowMs: 60 * 60 * 1000, // 1hr
+//     message: 'Too many requests from the used ip, try again after some time.',
+//   })
+// );
 
 // auth flow
 app.use('/api/auth', authRouter);

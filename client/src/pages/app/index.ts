@@ -9,4 +9,4 @@ export * from './ListRow';
 export * from './Message';
 export * from './PDFWindow';
 export * from './ProtectedRoute';
-export * from './Upload';
+export * from './Banner';
