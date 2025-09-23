@@ -6,7 +6,7 @@ import './index.css'
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
   // All the styles of the app will reside here.
-  <div className='parser-font text-slate-600 border-slate-300'>
+  <div className='parser-font text-slate-600 border-slate-300 bg-slate-100'>
     <App />
   </div>
   // </StrictMode>,

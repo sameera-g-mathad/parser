@@ -5,6 +5,7 @@ export type user = {
     firstName: string,
     lastName: string,
     email: string,
+    id: string
 }
 /**
  * Interface for the auth context.
@@ -17,6 +18,7 @@ export interface authContextInterface {
         firstName: string,
         lastName: string,
         email: string,
+        id: string
     }
     login: () => void;
     logout: () => void;
@@ -29,6 +31,7 @@ const AuthContext = createContext<authContextInterface>({
         firstName: '',
         lastName: '',
         email: '',
+        id: '',
     },
     login: () => false,
     logout: () => false,
@@ -45,7 +48,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     // status is boolean, to avoid user or others from getting 
     // access to jwt.
     const [status, setStatus] = useState<boolean>(false);
-    const [user, setUser] = useState<user>({ firstName: '', lastName: '', email: '' })
+    const [user, setUser] = useState<user>({ firstName: '', lastName: '', email: '', id: '' })
     const [loading, setLoading] = useState<boolean>(true);
 
 
@@ -86,7 +89,9 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
      * Set the status to true
      * @returns void
      */
-    const login = () => setStatus(true);
+    const login = () => {
+        getStatus()
+    }
 
     /**
      * Set the status to false.

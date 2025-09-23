@@ -5,6 +5,7 @@ import {
   getMe,
   getUploads,
   getUploadPdfUrl,
+  getUploadStatsById,
   requestLLM,
   uploadFile,
 } from '../controllers/appController';
@@ -45,6 +46,9 @@ router.route('/me').get(getMe);
 
 // route to upload files -> [multer uploads to a volume, uploadFile passes it onto worker.]
 router.route('/upload').post(upload.single('file'), uploadFile);
+
+// route to handle particular user.
+router.route('/upload/:user_id').get(getUploadStatsById);
 
 // to get all the uploaded files.
 router.route('/get-uploads').get(getUploads);

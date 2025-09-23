@@ -12,6 +12,7 @@ import {
   countUploadsbyUserId,
   deleteUploadById,
   getUploadById,
+  getStatsById,
   insertUpload,
   selectUploads,
 } from '../models/uploadModel';
@@ -44,17 +45,34 @@ const getConversationKey = (id: string): string => {
 export const getMe = catchAsync(async (req: Request, res: Response) => {
   // this retrieves only the email, firstName, and lastName
   // to send back to frontend or use it any where needed.
-  const { email, firstName, lastName } = req.user;
+  const { email, firstName, lastName, id } = req.user;
   res.status(200).json({
     status: 'success',
     user: {
       email,
       firstName,
       lastName,
+      id,
     },
     message: 'Authenticated!!',
   });
 });
+
+/**
+ * Method to get the statistics used in the
+ * homepage of the app, i.e count, active and
+ * processing documents
+ */
+export const getUploadStatsById = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const stats = await getStatsById(id);
+    res.status(200).json({
+      status: 'success',
+      stats,
+    });
+  }
+);
 
 /**
  * Method to upload a record to uploads table with

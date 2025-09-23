@@ -2,6 +2,7 @@ export * from './Body';
 export * from './Chat';
 export * from './ChatWindow';
 export * from './Dashboard';
+export * from './DocumentCard';
 export * from './Header';
 export * from './ListFiles';
 export * from './ListRow';
