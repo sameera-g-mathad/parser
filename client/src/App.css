@@ -1,3 +1,69 @@
+.logo-animate {
+  animation: logo_animation 1s ease-in-out 3;
+}
+
+/** #fed7aa, #99f6e4, #c7d2fe, #f5d0fe, #fbcfe8
+*/
+@keyframes logo_animation {
+  0% {
+    fill: #fed7aa;
+  }
+  25% {
+    fill: #99f6e4;
+  }
+  50% {
+    fill: #c7d2fe;
+  }
+  75% {
+    fill: #f5d0fe;
+  }
+  100% {
+    fill: #fbcfe8;
+  }
+}
+
+.homepage-animate {
+  animation: homepage_animation 2s ease-in-out 2.5s forwards,
+    bg_animate 10s ease-in infinite alternate;
+  background-size: 300%;
+}
+
+@keyframes homepage_animation {
+  from {
+    width: 0%;
+    height: 0%;
+  }
+  to {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@keyframes bg_animate {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.letsgo-animate {
+  animation: letsgo_animation 0.5s ease-in-out infinite;
+}
+
+@keyframes letsgo_animation {
+  from {
+    transform: translateX(-15%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
 /*
 * Hide scrollbar
 */

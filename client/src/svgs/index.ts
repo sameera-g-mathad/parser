@@ -2,6 +2,7 @@ export * from './ActiveSvg';
 export * from './AddSvg';
 export * from './CalenderSvg';
 export * from './DeleteSvg';
+export * from './LetsGoSvg';
 export * from './LogoSvg';
 export * from './LogoutSvg';
 export * from './MyDocuments';
