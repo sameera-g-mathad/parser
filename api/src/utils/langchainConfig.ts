@@ -104,9 +104,6 @@ export const stream = async (
   try {
     // store the whole message to persist in db.
     let aiMessage = '';
-    // Important to send streams to the frontend.
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Transfer-Encoding', 'chunked');
 
     // set llm callbacks for handling
     // streams.
