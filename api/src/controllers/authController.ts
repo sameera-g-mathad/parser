@@ -5,7 +5,6 @@ import { sign, verify, JwtPayload } from 'jsonwebtoken';
 import { redisClient, redisPub } from '../db';
 import {
   insertUser,
-  selectAll,
   userExists,
   searchUser,
   updateUserPassword,
@@ -360,18 +359,6 @@ export const forgotPassword = catchAsync(
       status: 'success',
       message:
         'A reset email has been sent. Please check your inbox to reset your password.',
-    });
-  }
-);
-
-// get all users, dummy in place.
-export const getUsers = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const user = await selectAll();
-    if (!user) return next(new AppError('No users found', 400));
-    res.status(200).json({
-      status: 'success',
-      users: user,
     });
   }
 );
