@@ -69,9 +69,9 @@ export const Banner: React.FC = () => {
                 </span>
             </div>
             <FileUpload accept=".pdf" callback={(files) => uploadFile(files)}>
-                <div className=" text-blue-500 border-blue-500 border stroke-blue-500 flex justify-center items-center gap-4 p-2 bg-white rounded-lg cursor-pointer group btn-click">
+                <div className=" text-blue-500 border-blue-500 border stroke-blue-500 flex justify-center items-center gap-2.5 p-2 bg-white rounded-lg cursor-pointer group btn-click">
                     <AddSvg className="w-5 h-5 transform transition-transform group-hover:rotate-90" />
-                    <span className="font-semibold capitalize">upload document</span>
+                    <span className="font-semibold capitalize">add PDF</span>
                 </div>
 
             </FileUpload>
@@ -79,9 +79,9 @@ export const Banner: React.FC = () => {
             {state.alertMsg['status'] && <Alert className="alert-info" message={state.alertMsg['message']} key={state.alertMsg['id']} />}
         </div>
         <div className="my-2 mt-4 flex justify-between items-center gap-5 sm:flex-nowrap flex-wrap">
-            <DocumentCard title="total documents" value={state.total} className="border-orange-500"><PdfSvg className="w-12 h-12 border p-2 rounded-xl fill-orange-500 bg-orange-100 border-orange-500" /></DocumentCard>
-            <DocumentCard title="active documents" value={state.active} className="border-teal-500"><ActiveSvg className="w-12 h-12 border p-2 rounded-xl stroke-teal-500 bg-teal-100 border-teal-500" /></DocumentCard>
-            <DocumentCard title="processing documents" value={state.processing} className="border-fuchsia-500"><ProcessingSvg className="w-12 h-12 border p-2 rounded-xl stroke-fuchsia-500 bg-fuchsia-100 border-fuchsia-500" /></DocumentCard>
+            <DocumentCard title="total" value={state.total} className="border-orange-400"><PdfSvg className="w-12 h-12 border p-2 rounded-xl fill-orange-500 bg-orange-100 border-orange-500" /></DocumentCard>
+            <DocumentCard title="active" value={state.active} className="border-teal-400"><ActiveSvg className="w-12 h-12 border p-2 rounded-xl stroke-teal-500 bg-teal-100 border-teal-500" /></DocumentCard>
+            <DocumentCard title="processing" value={state.processing} className="border-fuchsia-400"><ProcessingSvg className="w-12 h-12 border p-2 rounded-xl stroke-fuchsia-500 bg-fuchsia-100 border-fuchsia-500" /></DocumentCard>
         </div>
     </div>
 };

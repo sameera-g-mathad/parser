@@ -86,9 +86,3 @@ export const updateUserPassword = async (
     [password, email]
   );
 };
-
-// Get all users. Commenting as it is dummy placeholder
-// export const selectAll = async (): Promise<user[]> => {
-//   const result = await pg.query(`SELECT * FROM USERS;`);
-//   return result.rows;
-// };

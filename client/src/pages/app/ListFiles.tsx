@@ -85,9 +85,9 @@ export const ListFiles: React.FC<listFilesInterface> = ({ callback }) => {
                 </div>
             </div>
             <div className="flex justify-between flex-1">
-                <div className="flex flex-1 border border-slate-300 bg-slate-100 fill-slate-100 rounded-xl p-1 my-2 group">
-                    <SearchSvg className="w-7 h-7 stroke-slate-400 group-hover:scale-90" />
-                    <Input type='text' value={search} callback={(value: string) => setSearch(value)} placeholder="Search your uploads!" className="outline-none flex-1 pl-3 placeholder:text-[15px]" />
+                <div className="flex flex-1 border border-blue-300 bg-blue-100 fill-blue-100 rounded-xl p-1 my-2 group">
+                    <SearchSvg className="w-7 h-7 stroke-blue-400 group-hover:scale-90" />
+                    <Input type='text' value={search} callback={(value: string) => setSearch(value)} placeholder="Search your uploads!" className="outline-none flex-1 pl-3 placeholder:text-[15px] placeholder-blue-400" />
                 </div>
                 <Button callback={() => { getUploads(); callback() }} className="flex border border-pink-500 rounded-xl my-2 ml-2 items-center justify-between capitalize p-2 cursor-pointer group btn-click stroke-pink-500 text-pink-500">
                     <RefreshSvg className="w-5 h-5 mr-2 group-hover:-rotate-360 transform transition-transform duration-500" />
