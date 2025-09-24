@@ -6,12 +6,12 @@
 
 This is a PERN (Postgres, Express, React, Nodejs) application to pdf files and have conversation with ChatGPT. This is a side project intended for me to learn langchain and RAG, for chunking and retrieving pdf data and using that to converse with a LLM model. Along with langchain, I also learnt about authentication via jwt and worker instances for background processes. (I still need to work on the UI side to make the website look more appealing).
 
-##### Inspiration:
+#### Inspiration:
 
 I got my inspiration to work on this project after I finished a course "ChatGPT and LangChain: The Complete Developer's Masterclass"
 from udemy.
 
-##### Setup:
+#### Setup:
 
 1. Clone the repository
 
@@ -94,7 +94,7 @@ from udemy.
 - **Note:** If you get an error in `.worker/Dockerfile.dev` at the line
   `RUN rm -r build` while building, it is because the build folder is not created yet. You can ignore the error and run `make up` again.
 
-##### Architecture:
+#### Architecture:
 
 ![architecture](readme_images/architecture.png)
 
@@ -106,7 +106,7 @@ from udemy.
 - `Redis` - A memory database to store using information, conversations, uploads and also publish and subscribe events. The infomation stored in redis is setup with expiration date as well.
 - `S3 bucket` - To persist pdf files uploaded by the user.
 
-##### Working:
+#### Working:
 
 1. User signs up to the website, a verification link is sent to the email provided by the user. Once the user clicks on the link, their email is verified and they can sign in to the website. Worker instance handles sending the email to the user.
 2. Once signed in, user can upload a pdf file. The file is sent to the api instance which stores the file temporarily in a `shared volume` between **api** and **worker** and publishes an event to the worker instance.
@@ -129,7 +129,7 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
 - `jsonwebtoken` - For signing and verifying jwt tokens.
 - `Nodemailer`- Used to send emails from the worker instance.
 
-##### Features:
+#### Features:
 
 - SignUp - Users can sign up to the website. A url will be sent to their email before validating the entered email.
 <div align="center">
@@ -177,7 +177,7 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
  </tbody>
 </table>
 
-##### References:
+#### References:
 
 - Udemy Course: [ChatGPT and LangChain: The Complete Developer's Masterclass](https://www.udemy.com/course/chatgpt-and-langchain-the-complete-developers-masterclass)
 - Logo desgin: https://www.vistaprint.com/hub/logo-design
