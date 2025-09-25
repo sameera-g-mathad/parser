@@ -8,7 +8,6 @@ import { ListFiles, Banner } from "./";
  */
 export const Body = () => {
     const [refreshCount, setRefreshCount] = useState<number>(0)
-    console.log(refreshCount)
     return <div className="w-full h-full flex justify-center row-start-2 row-span-full overflow-y-scroll">
         <div key={refreshCount} className="sm:w-[70%] w-full flex flex-col">
             <Banner />

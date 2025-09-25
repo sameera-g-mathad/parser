@@ -24,7 +24,7 @@ export const TextBox: React.FC<textBoxInterface> = ({ placeholder, onSubmit }) =
      */
     const onChange = () => {
         if (!divRef.current) return;
-        const message = divRef.current.innerText
+        const message = divRef.current.innerText.trim()
         // If the value if not a enter of empty on back space, then set the query.
         if (message && message !== '' && message !== '\n') {
             setQuery(message)
@@ -69,15 +69,14 @@ export const TextBox: React.FC<textBoxInterface> = ({ placeholder, onSubmit }) =
 
     return <div className="auth-input border flex items-center rounded-2xl! p-1">
         <div
-            className={` resize-none flex items-center flex-1! outline-none placeholder:font-semibold placeholder-slate-500 p-0.5`}
+            className={`textbox resize-none flex items-center flex-1! outline-none placeholder:font-semibold placeholder-slate-500 p-0.5`}
             contentEditable={true}
             ref={divRef}
             style={{ height: scrollHeight }}
             onInput={onChange}
             onKeyDown={onKeyDown}
-        >
-            {query === "" ? <span className="text-slate-600 pointer-events-none select-none">{placeholder}</span> : ''}
-        </div>
+            data-placeholder={placeholder}
+        />
         <Button className="btn-click" callback={onButtonClick}>
             <SendSvg className="stroke-slate-700 w-7! h-7!" />
         </Button>

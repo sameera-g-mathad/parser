@@ -44,7 +44,6 @@ export const Banner: React.FC = () => {
         })
         const clone = response.clone()
         const data = await response.json();
-        console.log(data)
         setFieldWithValue('total', parseInt(data.stats.count))
         setFieldWithValue('active', data.stats.active)
         setFieldWithValue('processing', data.stats.processing)
@@ -54,7 +53,6 @@ export const Banner: React.FC = () => {
 
     // get it when the component starts.
     useEffect(() => {
-        console.log(user)
         getUploadDetails()
     }, [])
 
