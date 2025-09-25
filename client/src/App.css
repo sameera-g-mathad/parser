@@ -172,6 +172,11 @@ width goes from 0 to 100%
   }
 }
 
+.textbox:empty:before {
+  content: attr(data-placeholder);
+  pointer-events: none;
+}
+
 .pdf-list {
   animation: pdf-list-animation 0.5s ease-in-out forwards;
 }

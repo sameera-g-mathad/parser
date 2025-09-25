@@ -52,9 +52,11 @@ export const useErrorHandler = (): ErrorHandler => {
         if (redirectOnError) {
           await redirectOnError(args);
         }
+
         // errors from the server if needs to be alerted.
         let message =
           (error as Error).message || 'Something went wrong, Try again later.';
+
         if (setAlertMsg)
           return setAlertMsg({
             type: 'alert-danger',
