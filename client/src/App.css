@@ -1,8 +1,10 @@
 .logo-animate {
-  animation: logo_animation 1s ease-in-out 3;
+  animation: logo_animation 10s linear infinite;
+  -webkit-animation: logo_animation 10s linear infinite;
 }
 
 /** #fed7aa, #99f6e4, #c7d2fe, #f5d0fe, #fbcfe8
+Not used as of now.
 */
 @keyframes logo_animation {
   0% {
@@ -23,7 +25,8 @@
 }
 
 .homepage-animate {
-  animation: homepage_animation 2s ease-in-out 2.5s forwards,
+  animation:
+    homepage_animation 2s ease-in-out 2.5s forwards,
     bg_animate 10s ease-in infinite alternate;
   background-size: 300%;
 }
@@ -80,7 +83,9 @@ To set the style of alert boxes. both alertIn and alertOut
 animations are added to give a fadin and out effect.
 */
 .alert {
-  animation: alertIn 0.5s ease-in-out, alertOut 2s 1s ease-in-out forwards;
+  animation:
+    alertIn 0.5s ease-in-out,
+    alertOut 2s 1s ease-in-out forwards;
 }
 
 /*
@@ -145,6 +150,7 @@ to the text printed.
   white-space: nowrap;
   width: fit-content;
   animation: typing 3s steps(50, end) forwards;
+  -webkit-animation: typing 3s steps(50, end) forwards;
 }
 
 /*

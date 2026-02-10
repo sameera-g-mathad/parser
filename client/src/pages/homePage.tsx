@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Highlight } from "@/reusables";
 import { LetsGoSvg, LogoSvg } from "@/svgs";
 
 /**
@@ -7,13 +8,24 @@ import { LetsGoSvg, LogoSvg } from "@/svgs";
  */
 export const Home = () => {
     return <div className="w-full h-screen flex justify-center items-center">
-        <div className="absolute top-1/2 left-1/2 bg-[linear-gradient(to_top_right,#a5b4fc,#f9a8d4_25%,#fdba74_50%,#5eead4_75%,#f0abfc)] blur-3xl transform -translate-x-1/2 -translate-y-1/2 homepage-animate"></div>
-        <div className="flex flex-col gap-5 justify-center items-center z-10">
-            <LogoSvg className="w-32 h-32 fill-transparent stroke-white stroke-20 logo-animate" />
-            <span className="conversation text-xl tracking-wider uppercase text-slate-600">Parser</span>
-            <Link to="/auth/sign-in">
-                <LetsGoSvg className="w-6 h-6 fill-white btn-click letsgo-animate" />
-            </Link>
+        {/* First Section */}
+        <div className="w-full h-full flex justify-center items-center bg-slate-100">
+            <div className="flex flex-col justify-center items-center gap-5 h-full!">
+                <LogoSvg className="w-20 h-20 float-along" />
+                <span className="text-6xl tracking-widest text-indigo-500 conversation">Parser</span>
+                <span className="max-w-[70%] text-center tracking-wide leading-10">
+                    <Highlight color="blue">Upload PDFs</Highlight> and let <Highlight color="indigo">Parser</Highlight> transform them into an interactive <Highlight color="orange">knowledge source</Highlight>.
+                    Ask <Highlight color="green">contextual questions</Highlight> in plain language about any part of the document.
+                    Get  <Highlight color="pink">reliable answers</Highlight> grounded entirely in the document’s content using <Highlight color="defualt">Retrieval-Augmented Generation</Highlight>.
+                    <Highlight color="fuchsia">Move efficiently</Highlight> through dense material without manually searching pages.
+                    <Highlight color="red">Extract insights</Highlight>, <Highlight color="blue">clarify concepts</Highlight>, and <Highlight color='green'>understand documents</Highlight> in a fraction of the time.
+
+                </span>
+                <Link to="/auth/sign-in" className="flex justify-between items-center gap-3 p-3 px-5 bg-indigo-200 text-indigo-600 fill-indigo-600 border-2 border-indigo-600 rounded-xl">
+                    <span className="font-semibold tracking-wide text-lg">Explore</span>
+                    <LetsGoSvg className="w-7 h-6  btn-click letsgo-animate" />
+                </Link>
+            </div>
         </div>
     </div>;
 };
