@@ -17,6 +17,19 @@ export interface fileInterface extends RootInterface.className {
   callback: (file: FileList) => void;
 }
 
+export interface highlightInterface {
+  color:
+    | 'defualt'
+    | 'indigo'
+    | 'pink'
+    | 'orange'
+    | 'fuchsia'
+    | 'blue'
+    | 'red'
+    | 'green'
+    | 'yellow';
+}
+
 export interface inputGroupInterface extends RootInterface.className {
   label: string;
 }
