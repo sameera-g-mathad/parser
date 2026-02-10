@@ -3,12 +3,14 @@ import {
   S3Client,
   PutObjectCommand,
   PutObjectCommandInput,
+  DeleteObjectCommand,
+  DeleteObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { OpenAIEmbeddings } from '@langchain/openai';
 // import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
-import { redisClient, redisSub, pg, updateUploads } from './db';
+import { redisClient, redisSub, pg, updateUploads, deleteUpload } from './db';
 import { CustomPgVector } from './CustomVectorDB';
 import { getTemplate } from './templates/getTemplate';
 import { sendEmail } from './transporter';
@@ -62,7 +64,7 @@ const deletePdf = (path: string): void => {
 const uploadToS3 = async (
   fileName: string,
   path: string,
-  mimetype: string
+  mimetype: string,
 ): Promise<boolean> => {
   // read file
   const body = readPdf(path);
@@ -86,6 +88,27 @@ const uploadToS3 = async (
 };
 
 /**
+ * Delete the uplaoded file from s3 if
+ * upload to s3 -> create embeddings -> send success email
+ * fails.
+ */
+const deleteFromS3Single = async (fileName: string): Promise<void> => {
+  // create a put object command with necessary info
+  const deleteCommandOptions: DeleteObjectCommandInput = {
+    Bucket: process.env.AWS_BUCKET,
+    Key: fileName,
+  };
+  // try to upload the file
+  try {
+    await s3.send(new DeleteObjectCommand(deleteCommandOptions));
+  } catch (error) {
+    // send upload false back.
+    console.log(error);
+    return;
+  }
+};
+
+/**
  * @param path Path of the file uploaded in the volume
  * @param upload_id Upload id stored in the uploads table
  * @returns Promise<boolean>, that returns whether the embedding process
@@ -93,7 +116,7 @@ const uploadToS3 = async (
  */
 const createEmbeddings = async (
   path: string,
-  uploadId: string
+  uploadId: string,
 ): Promise<boolean> => {
   try {
     // 1. Load the pdf using a PdfLoader
@@ -155,7 +178,7 @@ redisSub.subscribe('processFile', async (channel, _message) => {
     const embStatus = await createEmbeddings(path, id);
     if (!embStatus) {
       updateUploads(id, 'failed');
-      throw Error('Upload to s3 failed.');
+      throw Error('Embedding creation failed.');
     }
     // 4. Finally update the row as active
     // for usage.
@@ -167,23 +190,29 @@ redisSub.subscribe('processFile', async (channel, _message) => {
       lastName,
       'Your PDF has been processed!',
       `Good news 🎉 Your uploaded PDF [${originalName}] was processed successfully and is now available in your dashboard.`,
-      'http://localhost:3050/app/dashboard',
+      `${process.env.WEB_URL}/app/dashboard`,
       'Go to Dashboard',
-      '#2dd4bf'
+      '#2dd4bf',
     );
     sendEmail(email, template, 'Your PDF was processed successfully ✅');
   } catch (error) {
-    // Send failed mail to the user.
+    // 1. Send failed mail to the user.
+    console.log(error);
     const template = await getTemplate(
       firstName,
       lastName,
       'There was an issue with your upload',
       `Unfortunately, we couldn’t process your uploaded PDF [${originalName}]. Please try again with a valid file format or check that the file is not corrupted.`,
-      'http://localhost:3050/app/dashboard',
+      `${process.env.WEB_URL}/app/dashboard`,
       'Go to Dashboard',
-      '#f87171'
+      '#f87171',
     );
     sendEmail(email, template, 'We couldn’t process your PDF ❌');
+    // 2. Delete the upload id as it failed.
+    deleteUpload(id);
+
+    // 3. Delete the uploads from s3 if uploaded previously.
+    deleteFromS3Single(fileName);
   } finally {
     //  Unlink the file from shared volume mount
     deletePdf(path);
