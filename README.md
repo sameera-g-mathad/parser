@@ -28,7 +28,7 @@ from udemy.
    AWS_BUCKET=<AWS Bucket Name>
    Open_Api_Key=<OpenAI API Key>
 
-   # configuration used in docker-compose file
+   // configuration used in docker-compose file
    PGDATABASE=postgres
    PGHOST=postgres
    PGPASSWORD=postgres
@@ -36,6 +36,9 @@ from udemy.
    PGUSER=postgres
    PORT=4000
    REDISURL=redis://redis:6379
+
+   // configuration of weburl:
+   WEB_URL = 'http://localhost:3050' // your-url
    ```
 
 3. Create a `.env` file in the `api` folder and add the following environment variables. This is to handle authentication and authorization.
