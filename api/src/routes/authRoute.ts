@@ -2,9 +2,11 @@ import { Router } from 'express';
 import {
   createUserRequest,
   forgotPassword,
+  protect,
   resetPassword,
   verifyAndCreateUser,
   validateResetLink,
+  deleteUser,
   userSignIn,
   userSignOut,
 } from '../controllers/authController';
@@ -22,6 +24,11 @@ router.route('/sign-in').post(userSignIn);
 
 // signOut users
 router.route('/sign-out').get(userSignOut);
+
+// delete users
+// using the protect here to check everything about jwt,
+// and getting user in the process.
+router.route('/delete-user').get(protect, deleteUser);
 
 // forgot password functionality
 router.route('/forgot-password').post(forgotPassword);

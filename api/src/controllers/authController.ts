@@ -53,7 +53,7 @@ const getRandomId = (size: number = 64): string => {
  */
 const hashPassword = async (
   password: string,
-  saltLength: number = 11
+  saltLength: number = 11,
 ): Promise<string> => {
   return await hash(password, saltLength);
 };
@@ -94,8 +94,8 @@ export const createUserRequest = catchAsync(
       return next(
         new AppError(
           'Email is invalid. It should be like user@example.com and end with .com, .dev, .edu, .org, or .net',
-          400
-        )
+          400,
+        ),
       );
 
     // check if the user already exists.
@@ -103,8 +103,8 @@ export const createUserRequest = catchAsync(
       return next(
         new AppError(
           'An account with this email already exists. Please log in instead.',
-          400
-        )
+          400,
+        ),
       );
 
     // check regex for password
@@ -112,8 +112,8 @@ export const createUserRequest = catchAsync(
       return next(
         new AppError(
           'Password is invalid. It must be 15-30 characters long and include at least 1 uppercase letter, 1 lowercase letter, and 1 number.',
-          400
-        )
+          400,
+        ),
       );
 
     // Password match check
@@ -121,8 +121,8 @@ export const createUserRequest = catchAsync(
       return next(
         new AppError(
           'Passwords do not match. Please make sure both fields are identical.',
-          400
-        )
+          400,
+        ),
       );
     }
 
@@ -132,8 +132,8 @@ export const createUserRequest = catchAsync(
       return next(
         new AppError(
           'A verification email has already been sent to this address. Please check your inbox and verify your email before requesting again.',
-          400
-        )
+          400,
+        ),
       );
 
     // Convert the password into a hash to store
@@ -174,7 +174,7 @@ export const createUserRequest = catchAsync(
       message:
         'A verification email has been sent. Please check your inbox to complete registration.',
     });
-  }
+  },
 );
 
 /**
@@ -196,8 +196,8 @@ export const verifyAndCreateUser = catchAsync(
       return next(
         new AppError(
           'Verification link is invalid or has expired. Please sign up again.',
-          401
-        )
+          401,
+        ),
       );
     }
     // get user details.
@@ -208,8 +208,8 @@ export const verifyAndCreateUser = catchAsync(
       return next(
         new AppError(
           'An account with this email already exists. Please log in instead.',
-          400
-        )
+          400,
+        ),
       );
 
     // 3. Create the user in the db and return the response.
@@ -219,7 +219,7 @@ export const verifyAndCreateUser = catchAsync(
       message:
         'Your account has been created successfully. Please log in to continue.',
     });
-  }
+  },
 );
 
 /**
@@ -273,7 +273,7 @@ export const userSignIn = catchAsync(
       status: 'success',
       message: 'Logged In Succesfully!!',
     });
-  }
+  },
 );
 
 /**
@@ -294,8 +294,8 @@ export const forgotPassword = catchAsync(
       return next(
         new AppError(
           'Please enter a valid email address (e.g., user@example.com).',
-          400
-        )
+          400,
+        ),
       );
     // 2. Check if the user actually exisits.
     const user = await searchUser(email);
@@ -303,8 +303,8 @@ export const forgotPassword = catchAsync(
       return next(
         new AppError(
           'We couldn’t find an account with that email. Please sign up to get started',
-          401
-        )
+          401,
+        ),
       );
 
     // create a email key to check redis db.
@@ -319,8 +319,8 @@ export const forgotPassword = catchAsync(
       return next(
         new AppError(
           'A reset email has already been sent to this address. Please check your inbox and verify your email before requesting again.',
-          400
-        )
+          400,
+        ),
       );
 
     // generate a random id for reset link.
@@ -360,7 +360,7 @@ export const forgotPassword = catchAsync(
       message:
         'A reset email has been sent. Please check your inbox to reset your password.',
     });
-  }
+  },
 );
 
 /**
@@ -380,8 +380,8 @@ export const validateResetLink = catchAsync(
       return next(
         new AppError(
           'This password reset link is invalid or has expired. Please request a new one.',
-          401
-        )
+          401,
+        ),
       );
     }
 
@@ -391,7 +391,7 @@ export const validateResetLink = catchAsync(
       message:
         'This reset link is active. Please continue to update your password.',
     });
-  }
+  },
 );
 
 /**
@@ -414,8 +414,8 @@ export const resetPassword = catchAsync(
       return next(
         new AppError(
           'Verification link is invalid or has expired. Please sign up again.',
-          401
-        )
+          401,
+        ),
       );
     }
 
@@ -435,8 +435,8 @@ export const resetPassword = catchAsync(
       return next(
         new AppError(
           'Password is invalid. It must be 15-30 characters long and include at least 1 uppercase letter, 1 lowercase letter, and 1 number.',
-          400
-        )
+          400,
+        ),
       );
 
     // 5. Password match check
@@ -444,8 +444,8 @@ export const resetPassword = catchAsync(
       return next(
         new AppError(
           'Passwords do not match. Please make sure both fields are identical.',
-          400
-        )
+          400,
+        ),
       );
     }
 
@@ -453,7 +453,7 @@ export const resetPassword = catchAsync(
     const passwordMatch = await compare(password, user.password);
     if (passwordMatch) {
       return next(
-        new AppError('New password cannot be same as old password.', 400)
+        new AppError('New password cannot be same as old password.', 400),
       );
     }
 
@@ -468,7 +468,7 @@ export const resetPassword = catchAsync(
       status: 'success',
       message: 'Password is reset. Please continue to login.',
     });
-  }
+  },
 );
 
 /**
@@ -488,7 +488,7 @@ export const userSignOut = catchAsync(
       status: 'success',
       message: 'You have been logged out successfully.',
     });
-  }
+  },
 );
 
 /**
@@ -501,10 +501,6 @@ export const userSignOut = catchAsync(
  * with the issued date. If all of this fail, then the user will
  * be blocked from using the protected routes.
  */
-// a sma
-// interface RequestWithUser extends Request{
-//   user: object;
-// }
 
 export const protect = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -513,7 +509,7 @@ export const protect = catchAsync(
     // 1. If no jwt, unauthorized.
     if (!jwt)
       return next(
-        new AppError('You must be logged in to access this resource.', 401)
+        new AppError('You must be logged in to access this resource.', 401),
       );
 
     const token = jwt.split(' ')[1]; // will always be 'Bearer <token>'
@@ -524,7 +520,7 @@ export const protect = catchAsync(
       payload = verify(token, JWT_SECRET_KEY) as JwtPayload;
     } catch (err) {
       return next(
-        new AppError('Invalid or expired token. Please log in again.', 401)
+        new AppError('Invalid or expired token. Please log in again.', 401),
       );
     }
 
@@ -533,7 +529,7 @@ export const protect = catchAsync(
     // 3. If the payload has incomplete data, the jwt is invalid.
     if (!id || !iat || !exp)
       return next(
-        new AppError('Invalid token payload. Please log in again', 400)
+        new AppError('Invalid token payload. Please log in again', 400),
       );
 
     // find a user by id.
@@ -552,7 +548,7 @@ export const protect = catchAsync(
     // 5. Check for token expire time.
     if (now > exp) {
       return next(
-        new AppError('Your session has expired. Please log in again.', 401)
+        new AppError('Your session has expired. Please log in again.', 401),
       );
     }
 
@@ -560,7 +556,10 @@ export const protect = catchAsync(
     // was issued.
     if (passwordChangedAt > iat) {
       return next(
-        new AppError('Password was recently changed. Please log in again.', 401)
+        new AppError(
+          'Password was recently changed. Please log in again.',
+          401,
+        ),
       );
     }
 
@@ -571,5 +570,62 @@ export const protect = catchAsync(
       lastName: user.lastname,
     }; // adding user to the request.
     next();
-  }
+  },
+);
+
+/**
+ * Delete the user from the database.
+ * The method is chained after protect, hence
+ * user_id will be present in the req already.
+ * First check if the user is logged in.
+ * If so, clear the cookie to log them out.
+ * Now send the account delete request to worker
+ * instance and send a sucess response.
+ *
+ * For frequent requests, send a response that
+ * their request is been processed.
+ */
+export const deleteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // If cookie has no jwt, return error.
+    if (!req.cookies.jwt) {
+      next(new AppError('You are not logged in.', 400));
+    }
+
+    const user = req.user;
+    const deleteKey = redisKey('user', 'deleteUser', user.id);
+    const lockKey = redisKey('user-lock', 'deleteUser', user.id);
+
+    // check if email is present, so that user doesn't request signup many times.
+    if (await redisClient.get(lockKey))
+      return next(
+        new AppError(
+          'A deletion request is already in progress. Please wait a few minutes before trying again.',
+          400,
+        ),
+      );
+    // // assumes the cookie is in jwt
+    res.clearCookie('jwt');
+
+    await redisClient.hSet(deleteKey, {
+      ...user,
+    });
+
+    // publish the delete request.
+    redisPub.publish('deleteUser', deleteKey);
+
+    // the token/hash has 5mins to expire.
+    await redisClient.expire(deleteKey, 300);
+
+    // set the user variable so that subsequent clicks are prevented.
+    await redisClient.set(lockKey, '1');
+
+    // expire lockKey after 2.5 mins
+    await redisClient.expire(lockKey, 150);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'You account has been deleted successfully.',
+    });
+  },
 );

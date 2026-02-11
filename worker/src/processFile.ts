@@ -5,12 +5,22 @@ import {
   PutObjectCommandInput,
   DeleteObjectCommand,
   DeleteObjectCommandInput,
+  DeleteObjectsCommand,
+  DeleteObjectsCommandInput,
 } from '@aws-sdk/client-s3';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { OpenAIEmbeddings } from '@langchain/openai';
 // import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
-import { redisClient, redisSub, pg, updateUploads, deleteUpload } from './db';
+import {
+  redisClient,
+  redisSub,
+  pg,
+  updateUploads,
+  deleteUpload,
+  getUserUploads,
+  deleteUser,
+} from './db';
 import { CustomPgVector } from './CustomVectorDB';
 import { getTemplate } from './templates/getTemplate';
 import { sendEmail } from './transporter';
@@ -24,6 +34,9 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_KEY!,
   },
 });
+
+// type used to delete uploads from s3.
+type S3DelteFile = { file_name: string };
 
 const openAIEmbeddings = new OpenAIEmbeddings({
   openAIApiKey: process.env.Open_Api_Key!,
@@ -94,17 +107,48 @@ const uploadToS3 = async (
  */
 const deleteFromS3Single = async (fileName: string): Promise<void> => {
   // create a put object command with necessary info
-  const deleteCommandOptions: DeleteObjectCommandInput = {
+  const deleteCommandOptionsSingle: DeleteObjectCommandInput = {
     Bucket: process.env.AWS_BUCKET,
     Key: fileName,
   };
-  // try to upload the file
+  // try to delete the file
   try {
-    await s3.send(new DeleteObjectCommand(deleteCommandOptions));
+    await s3.send(new DeleteObjectCommand(deleteCommandOptionsSingle));
   } catch (error) {
     // send upload false back.
     console.log(error);
     return;
+  }
+};
+
+/**
+ * Delete all uplaoded files from s3 if
+ * the user wants to delete their account.
+ * Different methods are used due to different
+ * classes s3 offers to how files are deleted
+ *
+ * @param files - Array of objects returned by postgres
+ * database with `file_name` property.
+ */
+const deleteFromS3Bulk = async (files: S3DelteFile[]): Promise<boolean> => {
+  // create a put object command with necessary info
+  const deleteCommandOptionsBulk: DeleteObjectsCommandInput = {
+    Bucket: process.env.AWS_BUCKET,
+    Delete: {
+      Objects: files.map((file) => ({
+        Key: file.file_name,
+      })),
+      Quiet: true,
+    },
+  };
+  // try to delte the files
+  try {
+    await s3.send(new DeleteObjectsCommand(deleteCommandOptionsBulk));
+    return true;
+  } catch (error) {
+    // send upload false back.
+    console.log(error);
+    return false;
   }
 };
 
@@ -216,5 +260,51 @@ redisSub.subscribe('processFile', async (channel, _message) => {
   } finally {
     //  Unlink the file from shared volume mount
     deletePdf(path);
+  }
+});
+
+// Listen to Delete User requests.
+// Adding here as I need to delete all the files
+// in S3.
+redisSub.subscribe('deleteUser', async (channel, _message) => {
+  try {
+    // get the user id from the channel.
+    const data = await redisClient.hGetAll(channel);
+    if (Object.keys(data).length > 0) {
+      const { id, email, firstName, lastName } = data;
+
+      // 1. Get all the upload filenames to delete from s3.
+      const fileNames = await getUserUploads(id);
+
+      const s3Status = await deleteFromS3Bulk(fileNames);
+      if (!s3Status) {
+        updateUploads(id, 'failed');
+        throw Error('Delete from from s3 failed.');
+      }
+
+      // 2. Delete user from user table.
+      await deleteUser(id);
+
+      // 3. Send them a good bye email.
+      const template = await getTemplate(
+        firstName,
+        lastName,
+        'Your account has been deleted.',
+        ` Thank you for trying Parser.Your demo account, along with all associated files and conversations, 
+        has now been permanently deleted from the system.
+        I truly appreciate you taking the time to explore Parser. 
+        I hope you found it useful, and I’d love to see you again in the future.`,
+        `${process.env.WEB_URL}`,
+        'Try Parser',
+        '#818cf8',
+      );
+
+      sendEmail(email!, template, 'Your Parser account has been deleted 👋');
+    } else {
+      console.log('Error: No data in redis for the key associated.');
+    }
+  } catch (error) {
+    // logging error for now.
+    console.log(error);
   }
 });

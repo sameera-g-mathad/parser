@@ -32,9 +32,9 @@ export const Message: React.FC<messageInterface> = memo(({ chat, streaming, onPa
                     // Only display if there is a running question.
                     chat.runningQuestion
                         ?
-                        <span className="border bg-indigo-200 text-indigo-500 border-indigo-500 rounded-xl p-2 flex flex-col appearing-in ">
+                        <span className="border bg-indigo-100 text-indigo-500 border-indigo-500 rounded-xl pl-2 flex flex-col appearing-in ">
                             <span className="text-[10px]">Running Context:</span>
-                            <span>{chat.runningQuestion}</span>
+                            <span className="-translate-y-2">{chat.runningQuestion}</span>
                         </span>
                         :
                         ''
