@@ -1,7 +1,7 @@
 import React from 'react';
 import { Body, Container, Html, Head, Hr, Link, Preview, Section, Text, Img, } from '@react-email/components';
 import { styles } from './styles';
-import fs from 'fs'
+// import fs from 'fs'
 // A react component for creating a welcome 
 // email to the users.
 interface emailInterface {
@@ -15,7 +15,7 @@ interface emailInterface {
 }
 
 // embed the image inside the email.
-const img = "data:image/png;base64," + fs.readFileSync(`${__dirname}/../../public/logo.png`, 'base64')
+// const img = "data:image/png;base64," + fs.readFileSync(`${__dirname}/../../public/logo.png`, 'base64')
 
 /**
  * A react component that is used to create a email template for signUp and resetpassword.
@@ -37,7 +37,7 @@ export const Email: React.FC<emailInterface> = ({ firstName, lastName, preview, 
         <Container>
           <Section style={{ ...styles.logoStyle, backgroundColor: color }}>
             <Img
-              src={img}
+              src="https://i.imgur.com/i51x1gd.png"
               alt='Parser'
               width={100}
               height={100}
