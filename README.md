@@ -181,6 +181,7 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
          <td><img alt="Signin" src="readme_images/forgot_password_email.png"/></td>
           <td><img alt="Successful upload" src="readme_images/success_upload.png"/></td>
          <td><img alt="Failed Upload" src="readme_images/failed_upload.png"/></td>
+         <td><img alt="User Deletion" src="readme_images/userDeletion_email.png"/></td>
      </tr>
  </tbody>
 </table>
@@ -196,5 +197,6 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
 - Brevo (formerly known as sendinblue): https://www.brevo.com/
 - Using pdfjs in react: https://www.npmjs.com/package/pdfjs-dist
 - Svg icons: https://www.svgrepo.com/
+- Lucide icons: https://lucide.dev/icons/
 - LLMs like claude and gpt for bug fixes.
 - Lovable: HomePage Inspiration - https://lovable.dev/projects/cdab19a6-8dc2-4a53-a6da-ef74cf33b80b
