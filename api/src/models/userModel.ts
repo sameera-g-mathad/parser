@@ -22,7 +22,7 @@ export const insertUser = async (
   firstName: string,
   lastName: string,
   email: string,
-  password: string
+  password: string,
 ): Promise<void> => {
   // convert all three fields into lower case for
   // consistency.
@@ -31,7 +31,7 @@ export const insertUser = async (
   email = email.toLowerCase();
   await pg.query(
     `INSERT INTO users(firstname, lastname, email, password) VALUES($1, $2, $3, $4);`,
-    [firstName, lastName, email, password]
+    [firstName, lastName, email, password],
   );
   console.log('user created.');
 };
@@ -56,7 +56,7 @@ export const searchUser = async (email: string): Promise<any> => {
 export const userExists = async (email: string): Promise<boolean> => {
   const { rowCount } = await pg.query(
     `SELECT 1 FROM users where email=$1 LIMIT 1`,
-    [email]
+    [email],
   );
   return rowCount! > 0 || false;
 };
@@ -79,10 +79,10 @@ export const findById = async (id: string): Promise<any> => {
  */
 export const updateUserPassword = async (
   email: string,
-  password: string
+  password: string,
 ): Promise<void> => {
   await pg.query(
     `UPDATE users SET password=$1, pct=CURRENT_TIMESTAMP WHERE email=$2`,
-    [password, email]
+    [password, email],
   );
 };

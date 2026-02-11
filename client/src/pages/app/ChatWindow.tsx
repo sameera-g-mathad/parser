@@ -111,10 +111,10 @@ export const ChatWindow: React.FC<className & chatWindowInterface> = ({ classNam
             }
         </div>
         <div className="row-start-15 row-span-full flex flex-col justify-center items-center">
-            <TextBox placeholder="How can i help today?"
+            <TextBox className="text-sm font-light" placeholder="How can i help today?"
                 onSubmit={onSubmit}
             />
-            <span className="capitalize pt-2">powered by ChatGPT</span>
+            <span className="capitalize pt-2 text-xs">powered by ChatGPT</span>
         </div>
 
     </div>;

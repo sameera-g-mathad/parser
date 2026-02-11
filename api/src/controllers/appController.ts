@@ -66,12 +66,12 @@ export const getMe = catchAsync(async (req: Request, res: Response) => {
 export const getUploadStatsById = catchAsync(
   async (req: Request, res: Response) => {
     const { user_id } = req.params;
-    const stats = await getStatsById(user_id);
+    const stats = await getStatsById(user_id as string);
     res.status(200).json({
       status: 'success',
       stats,
     });
-  }
+  },
 );
 
 /**
@@ -100,7 +100,7 @@ export const uploadFile = catchAsync(
     const upload = await insertUpload(
       req.user.id,
       fileName,
-      req.file?.originalname!
+      req.file?.originalname!,
     );
 
     // upload_key format to publish event: upload:<unique_id_in_db>
@@ -130,7 +130,7 @@ export const uploadFile = catchAsync(
       message:
         'Your request has been received and is being processed. You will be notified once it is complete.',
     });
-  }
+  },
 );
 
 /**
@@ -159,7 +159,7 @@ export const getUploads = catchAsync(
       uploads,
       ...countUploads,
     });
-  }
+  },
 );
 
 /**
@@ -172,7 +172,7 @@ export const getUploadPdfUrl = catchAsync(
     const { id } = req.params;
 
     // 2. Find an upload if present.
-    const upload = await getUploadById(id);
+    const upload = await getUploadById(id as string);
 
     // 3. if there is no upload or the id was deleted
     // return back.
@@ -199,7 +199,7 @@ export const getUploadPdfUrl = catchAsync(
 
     // 6. send next.
     next();
-  }
+  },
 );
 
 /**
@@ -224,9 +224,29 @@ const getConversationByKey = async (conversationKey: string, id: string) => {
   }
   // return the parse objects back.
   return (await redisClient.lRange(conversationKey, 0, -1)).map((el) =>
-    JSON.parse(el)
+    JSON.parse(el),
   );
 };
+
+/**
+ * Method to get the chat history from the database.
+ */
+export const getConversations = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // get the id from the url
+    const { id } = req.params;
+    // get conversation key, ex: conversation:id
+    const conversationKey = getConversationKey(id as string);
+    // get conversations.
+    const history = await getConversationByKey(conversationKey, id as string);
+    res.status(200).json({
+      status: 'success',
+      history,
+      url: (req as any).url,
+      originalName: (req as any).original_name,
+    });
+  },
+);
 
 /**
  * Method to stream response from llm to the frontend.
@@ -242,8 +262,8 @@ export const requestLLM = catchAsync(
     const { id } = req.params;
 
     // get the conversations.
-    const conversationKey = getConversationKey(id);
-    let chatHistory = await getConversationByKey(conversationKey, id);
+    const conversationKey = getConversationKey(id as string);
+    let chatHistory = await getConversationByKey(conversationKey, id as string);
 
     // retreive context and standalone data.
     const response = await conversationalRetrievelQA.invoke({
@@ -262,7 +282,7 @@ export const requestLLM = catchAsync(
       JSON.stringify({
         event: 'runningQuestion',
         runningQuestion: response.output.question,
-      }) + '\n'
+      }) + '\n',
     );
 
     // stream response to the user. Sending
@@ -278,6 +298,7 @@ export const requestLLM = catchAsync(
     // using an empty array to maintain order.
     const pageNumbers = [];
     const context: any = response.output.context;
+    const running_context: string = response.output.question;
 
     // add page numbers into the array.
     for (let i = 0; i < context.length; i++) {
@@ -300,12 +321,14 @@ export const requestLLM = catchAsync(
     res.write(JSON.stringify(pageResponse) + '\n'); // \n is important if there are multiple objects.
     // end the stream.
 
-    //update redis for faster access.
+    //update redis for faster retrieval access.
     const messages = [
       JSON.stringify({ message: query, type: 'human' }),
       JSON.stringify({
         message: aiMessage,
         type: 'ai',
+        pageNumbers,
+        runningQuestion: running_context,
       }),
     ];
     await redisClient.rPush(conversationKey, messages);
@@ -313,34 +336,20 @@ export const requestLLM = catchAsync(
 
     // store both the human messages in the database.
     // First store the human message.
-    await insertConversation(id, query, 'human');
+    await insertConversation(id as string, query, 'human');
 
     // second store the ai message.
-    await insertConversation(id, aiMessage, 'ai');
+    await insertConversation(
+      id as string,
+      aiMessage,
+      'ai',
+      pageNumbers,
+      running_context,
+    );
 
     // end the stream
     res.end();
-  }
-);
-
-/**
- * Method to get the chat history from the database.
- */
-export const getConversations = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    // get the id from the url
-    const { id } = req.params;
-    // get conversation key, ex: conversation:id
-    const conversationKey = getConversationKey(id);
-    // get conversations.
-    const history = await getConversationByKey(conversationKey, id);
-    res.status(200).json({
-      status: 'success',
-      history,
-      url: (req as any).url,
-      originalName: (req as any).original_name,
-    });
-  }
+  },
 );
 
 /**
@@ -351,7 +360,7 @@ export const deleteById = catchAsync(
     const { id } = req.params;
 
     // 2. Find an upload if present.
-    const upload = await getUploadById(id);
+    const upload = await getUploadById(id as string);
 
     // 3. if there is no upload or the id was deleted
     // return back.
@@ -370,11 +379,11 @@ export const deleteById = catchAsync(
     await s3.send(new DeleteObjectCommand(deleteOptions));
 
     // 5. Delete it from the database
-    const response = await deleteUploadById(id);
+    const response = await deleteUploadById(id as string);
 
     res.status(200).json({
       status: 'success',
       message: `${upload.original_name} successfully deleted.`,
     });
-  }
+  },
 );

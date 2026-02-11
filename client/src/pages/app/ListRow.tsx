@@ -29,7 +29,7 @@ export const ListRow: React.FC<uploadRowInterface> = ({ id, original_name, updat
         onClick={goTo}
     >
         <div className="flex flex-col flex-5 gap-2">
-            <span className="capitalize font-semibold ellipses">{original_name}</span>
+            <span className="capitalize font-medium ellipses">{original_name}</span>
             <span className="flex items-center gap-1 text-[10px]">
                 <span>
                     <span className={`p-0.5 px-2 capitalize border font-semibold rounded-lg ${status === 'active' ? 'text-green-600 border-green-600 bg-green-100' : 'text-slate-700 border-slate-600 bg-slate-100'}`}>{status}</span>
