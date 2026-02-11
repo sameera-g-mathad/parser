@@ -134,6 +134,11 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
 
 #### Features:
 
+- HomePage:
+  <div align="center">
+ <img src="readme_images/homepage.png" alt="Home Page" width="300" height="300">
+</div>
+
 - SignUp - Users can sign up to the website. A url will be sent to their email before validating the entered email.
 <div align="center">
  <img src="readme_images/signup.png" alt="Signup Page" width="300" height="300">
@@ -158,9 +163,9 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
  </tbody>
 </table>
 
-- Home page:
+- Dashboard page:
 <div align="center">
- <img src="readme_images/homepage.png" alt="Home Page" width="300" height="300">
+ <img src="readme_images/dashboard.png" alt="Dashboard Page" width="300" height="300">
 </div>
 
 - Chat page:
@@ -192,3 +197,4 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
 - Using pdfjs in react: https://www.npmjs.com/package/pdfjs-dist
 - Svg icons: https://www.svgrepo.com/
 - LLMs like claude and gpt for bug fixes.
+- Lovable: HomePage Inspiration - https://lovable.dev/projects/cdab19a6-8dc2-4a53-a6da-ef74cf33b80b

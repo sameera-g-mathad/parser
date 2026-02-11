@@ -58,11 +58,11 @@ export const Banner: React.FC = () => {
 
     return <div className="w-full py-8 rounded-xl sm:px-0 px-2">
         <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-2">
-                <span className="sm:text-xl ">
+            <div className="flex flex-col gap-1">
+                <span className="sm:text-xl tracking-tight">
                     Start your journey with Parser
                 </span>
-                <span className="font-[13px] text-wrap">
+                <span className="font-[10px] text-wrap text-sm">
                     Turn your PDFs into interactive conversations powered by AI.
                 </span>
             </div>

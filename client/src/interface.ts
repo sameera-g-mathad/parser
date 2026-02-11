@@ -35,7 +35,7 @@ export type ErrorHandler = {
     callback: (...args: T) => Promise<Response | void>,
     setAlertMsg?: (_alertMsg: alertMsgInterface) => void,
     redirectOnSuccess?: ((args: any) => void) | null,
-    redirectOnError?: ((args: any) => void) | null
+    redirectOnError?: ((args: any) => void) | null,
   ) => (...args: T) => Promise<void | any>;
 };
 
@@ -117,4 +117,32 @@ export interface documentCardInterface extends className {
 
 export interface listFilesInterface {
   callback: () => void;
+}
+
+export interface architectureOverviewInterface {
+  title: string;
+  content: string;
+  badge: boolean;
+  badgeColor?:
+    | 'defualt'
+    | 'indigo'
+    | 'pink'
+    | 'orange'
+    | 'fuchsia'
+    | 'blue'
+    | 'red'
+    | 'green'
+    | 'yellow';
+}
+
+export interface titleInterface {
+  subTitle: string;
+  title: string;
+}
+
+export interface stepCardInterface {
+  eyebrow: string;
+  title: string;
+  content: string;
+  icon: React.ReactNode;
 }
