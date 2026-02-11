@@ -102,7 +102,7 @@ export const ListFiles: React.FC<listFilesInterface> = ({ callback }) => {
                 )
                 : <div className="w-full h-full flex flex-col justify-center items-center gap-2 text-indigo-600">
                     <LogoSvg className="w-20 h-20" />
-                    <span>Upload your file now</span>
+                    <span className="conversation">Upload your file now</span>
                 </div>
         }
         {

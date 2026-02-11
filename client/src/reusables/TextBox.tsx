@@ -12,7 +12,7 @@ import { SendSvg } from "@/svgs";
  * @returns - A JSX Component that returns a textbox that can be used to use for
  * quering.
  */
-export const TextBox: React.FC<textBoxInterface> = ({ placeholder, onSubmit }) => {
+export const TextBox: React.FC<textBoxInterface> = ({ className, placeholder, onSubmit }) => {
     const [scrollHeight, setScrollHeight] = useState<number>(30);
     const [query, setQuery] = useState<string>("");
     const divRef = useRef<HTMLDivElement>(null);
@@ -67,7 +67,7 @@ export const TextBox: React.FC<textBoxInterface> = ({ placeholder, onSubmit }) =
         divRef.current.innerText = ''
     }
 
-    return <div className="auth-input border flex items-center rounded-2xl! p-1">
+    return <div className={`auth-input border flex items-center rounded-2xl! p-1 ${className}`}>
         <div
             className={`textbox resize-none flex items-center flex-1! outline-none placeholder:font-semibold placeholder-slate-500 p-0.5`}
             contentEditable={true}

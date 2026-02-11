@@ -8,7 +8,7 @@ import { Button } from "@/reusables"
  * @returns A JSX component that displays the logo and the user menu.
  */
 export const Header = () => {
-    const { user, logout } = useAuth()
+    const { user, logout, deleteAccount } = useAuth()
     const { firstName, lastName, email } = user
     const [isOpen, setIsOpen] = useState(false)
     const avatarRef = useRef<HTMLSpanElement>(null);
@@ -51,13 +51,19 @@ export const Header = () => {
             {
                 // if the avatar is clicked the isOpen is true and will display the dropdown
                 isOpen &&
-                <div ref={dropDownRef} className="rounded-lg shadow-lg w-64 absolute top-11 right-0 p-2 bg-white border border-slate-200">
-                    <p className="capitalize flex font-medium py-1 text-[17px] ellipses">{firstName + ' ' + lastName}</p>
-                    <p className="text-sm py-0.5 text-slate-500 ellipses">{email}</p>
+                <div ref={dropDownRef} className="rounded-lg shadow-lg w-90 absolute top-11 right-0 p-5 bg-white border border-slate-200 z-10">
+                    <p className="capitalize flex font-medium py-1 text-[15px] ellipses">{firstName + ' ' + lastName}</p>
+                    <p className="text-[12px] text-slate-500 ellipses mb-4">{email}</p>
                     <hr />
 
                     {/*Logout button */}
-                    <Button callback={logout} className="py-2 w-full my-4 bg-red-200 text-red-700 font-semibold rounded-lg cursor-pointer">Logout</Button>
+                    <Button callback={logout} className="py-2 w-full my-4 bg-rose-200 text-rose-700 font-semibold rounded-lg cursor-pointer">Logout</Button>
+
+                    {/* Delete Account */}
+                    <div>
+                        <span className="text-xs">This is a demo application. Deleting your account will permanently remove your account, uploads, and conversations.</span>
+                        <Button callback={deleteAccount} className="py-2 w-full my-4 bg-rose-200 text-rose-700 font-semibold rounded-lg cursor-pointer">Delete Account</Button>
+                    </div>
                 </div>
             }
         </div>

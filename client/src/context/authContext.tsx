@@ -19,9 +19,11 @@ export interface authContextInterface {
         lastName: string,
         email: string,
         id: string
-    }
+    };
+    deleteAccount: () => void;
     login: () => void;
     logout: () => void;
+
 }
 
 // context creation
@@ -33,6 +35,7 @@ const AuthContext = createContext<authContextInterface>({
         email: '',
         id: '',
     },
+    deleteAccount: () => false,
     login: () => false,
     logout: () => false,
 });
@@ -86,13 +89,38 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     }, [])
 
     /**
+     * Method to delete the user and all their
+     * details from the database.
+     * @returns void
+     */
+    const deleteAccount = async () => {
+        try {
+            await fetch('/api/auth/delete-user',
+                {
+                    'method': 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+        }
+        catch (e) {
+            console.log(e)
+        }
+        finally {
+            // // finally set the status to false
+            setStatus(false)
+            setLoading(false)
+        }
+    }
+
+    /**
      * Set the status to true
      * @returns void
      */
     const login = () => {
         getStatus()
     }
-
     /**
      * Set the status to false.
      * Makes a GET method to server to clear
@@ -121,7 +149,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     }
     if (loading)
         return null
-    return <AuthContext.Provider value={{ status, user, login, logout }}>
+    return <AuthContext.Provider value={{ status, user, deleteAccount, login, logout }}>
         {/* 
             Make sure to have loading to true so that the page
             doesn't reroutes to any route before getting the login

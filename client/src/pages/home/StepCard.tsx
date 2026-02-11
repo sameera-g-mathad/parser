@@ -10,7 +10,7 @@ import React from "react";
  * @returns React.JSX
  */
 export const StepCard: React.FC<stepCardInterface> = ({ content, eyebrow, icon, title }) => {
-    return <div className="bg-white flex justify-between gap-3 rounded-2xl hover:shadow-lg w-[35%] h-48 p-5 pt-8">
+    return <div className="bg-white flex justify-between gap-3 rounded-2xl transition-shadow duration-200 hover:shadow-lg w-[35%] h-48 p-5 pt-8">
         <div className="flex items-start">
             {icon}
         </div>

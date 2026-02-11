@@ -19,7 +19,7 @@ export const pg = new Pool({
 export const updateUploads = async (
   id: string,
   status: 'active' | 'failed',
-) => {
+): Promise<void> => {
   await pg.query(
     `UPDATE uploads SET status=$2, updated_at=CURRENT_TIMESTAMP WHERE id=$1`,
     [id, status],
@@ -32,8 +32,33 @@ export const updateUploads = async (
  * This automatically deletes embeddings if any exist.
  * @param id Id of the upload record
  */
-export const deleteUpload = async (id: string) => {
+export const deleteUpload = async (id: string): Promise<void> => {
   await pg.query(`DELETE FROM uploads WHERE id=$1`, [id]);
+};
+
+/**
+ * Method to get all the filenames from user uploads
+ * to delete them from s3.
+ * @param id Id of the user to get uploads.
+ */
+export const getUserUploads = async (
+  id: string,
+): Promise<{ file_name: string }[]> => {
+  const result = await pg.query(
+    `SELECT file_name FROM uploads WHERE user_id=$1`,
+    [id],
+  );
+  return result.rows;
+};
+
+/**
+ * Method to delete the user from the database.
+ * This is done when the user requests to delete
+ * their account.
+ * @param id Id of the user to be deleted.
+ */
+export const deleteUser = async (id: string): Promise<void> => {
+  await pg.query(`DELETE FROM users WHERE id=$1`, [id]);
 };
 
 // Create a redis client.

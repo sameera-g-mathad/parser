@@ -52,7 +52,7 @@ export const Home = () => {
                             </div>
                         </div>
                         <div>
-                            <div className="uppercase text-sm tracking wider mb-5">services</div>
+                            <div className="uppercase text-sm tracking wider mb-5">data stores</div>
                             <div className="flex flex-col gap-3">
                                 <ArchitectureOverview content='pgvector · Users · Embeddings' title='PostgreSQL' badge={false} />
                                 <ArchitectureOverview content='Cache · Pub/Sub · Sessions' title='Redis' badge={false} />

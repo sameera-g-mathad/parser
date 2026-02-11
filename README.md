@@ -135,8 +135,8 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
 #### Features:
 
 - HomePage:
-  <div align="center">
- <img src="readme_images/homepage.png" alt="Home Page" width="300" height="300">
+<div align="center">
+  <img src="readme_images/homepage.png" alt="Home Page" width="300" height="300">
 </div>
 
 - SignUp - Users can sign up to the website. A url will be sent to their email before validating the entered email.
