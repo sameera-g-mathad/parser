@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ListRow } from "./";
 import type { uploadRowInterface } from "@/interface";
 import { Alert, Button, Input } from "@/reusables";
-import { SearchSvg, RefreshSvg, MyDocuments } from "@/svgs";
+import { SearchSvg, RefreshSvg, MyDocuments, LogoSvg } from "@/svgs";
 import { useCustomReducer, useErrorHandler } from "@/hooks";
 import type { listFilesInterface } from "@/interface";
 
@@ -85,8 +85,8 @@ export const ListFiles: React.FC<listFilesInterface> = ({ callback }) => {
                 </div>
             </div>
             <div className="flex justify-between flex-1">
-                <div className="flex flex-1 border border-blue-300 bg-blue-100 fill-blue-100 rounded-xl p-1 my-2 group">
-                    <SearchSvg className="w-7 h-7 stroke-blue-400 group-hover:scale-90" />
+                <div className="flex flex-1 border border-blue-300 rounded-xl p-1 my-2 group">
+                    <SearchSvg className="w-7 h-7 stroke-blue-400 fill-transparent group-hover:scale-90" />
                     <Input type='text' value={search} callback={(value: string) => setSearch(value)} placeholder="Search your uploads!" className="outline-none flex-1 pl-3 placeholder:text-[15px] placeholder-blue-400" />
                 </div>
                 <Button callback={() => { getUploads(); callback() }} className="flex border border-pink-500 rounded-xl my-2 ml-2 items-center justify-between capitalize p-2 cursor-pointer group btn-click stroke-pink-500 text-pink-500">
@@ -96,9 +96,14 @@ export const ListFiles: React.FC<listFilesInterface> = ({ callback }) => {
             </div>
         </div>
         {
-            data.map((el, i) =>
-                <ListRow deleting={el.deleting} callback={deleteById} key={el.id} id={el.id} rowNum={i} original_name={el.original_name} status={el.status} updated_at={el.updated_at} created_at={el.created_at} />
-            )
+            data.length > 0 ?
+                data.map((el, i) =>
+                    <ListRow deleting={el.deleting} callback={deleteById} key={el.id} id={el.id} rowNum={i} original_name={el.original_name} status={el.status} updated_at={el.updated_at} created_at={el.created_at} />
+                )
+                : <div className="w-full h-full flex flex-col justify-center items-center gap-2 text-indigo-600">
+                    <LogoSvg className="w-20 h-20" />
+                    <span>Upload your file now</span>
+                </div>
         }
         {
             state.alertMsg['status'] &&

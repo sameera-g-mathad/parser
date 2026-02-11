@@ -28,7 +28,7 @@ from udemy.
    AWS_BUCKET=<AWS Bucket Name>
    Open_Api_Key=<OpenAI API Key>
 
-   # configuration used in docker-compose file
+   // configuration used in docker-compose file
    PGDATABASE=postgres
    PGHOST=postgres
    PGPASSWORD=postgres
@@ -36,6 +36,9 @@ from udemy.
    PGUSER=postgres
    PORT=4000
    REDISURL=redis://redis:6379
+
+   // configuration of weburl:
+   WEB_URL = 'http://localhost:3050' // your-url
    ```
 
 3. Create a `.env` file in the `api` folder and add the following environment variables. This is to handle authentication and authorization.
@@ -131,6 +134,11 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
 
 #### Features:
 
+- HomePage:
+  <div align="center">
+ <img src="readme_images/homepage.png" alt="Home Page" width="300" height="300">
+</div>
+
 - SignUp - Users can sign up to the website. A url will be sent to their email before validating the entered email.
 <div align="center">
  <img src="readme_images/signup.png" alt="Signup Page" width="300" height="300">
@@ -155,9 +163,9 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
  </tbody>
 </table>
 
-- Home page:
+- Dashboard page:
 <div align="center">
- <img src="readme_images/homepage.png" alt="Home Page" width="300" height="300">
+ <img src="readme_images/dashboard.png" alt="Dashboard Page" width="300" height="300">
 </div>
 
 - Chat page:
@@ -189,3 +197,4 @@ Apart from the Pern stack and the architeture, other technologies used in the pr
 - Using pdfjs in react: https://www.npmjs.com/package/pdfjs-dist
 - Svg icons: https://www.svgrepo.com/
 - LLMs like claude and gpt for bug fixes.
+- Lovable: HomePage Inspiration - https://lovable.dev/projects/cdab19a6-8dc2-4a53-a6da-ef74cf33b80b
