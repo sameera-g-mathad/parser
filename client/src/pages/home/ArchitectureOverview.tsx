@@ -26,7 +26,10 @@ export const ArchitectureOverview: React.FC<architectureOverviewInterface> = ({ 
         }
     }
 
-    return <div className={`bg-white rounded-lg w-[500px] h-20 p-5 ${badge ? 'flex items-center gap-5' : 'flex flex-col justify-start items-start mb-2'}`}>
+    return <div className={
+        `bg-white rounded-lg w-[500px] h-20 p-5 transition-all duration-200 hover:scale-95 cursor-pointer
+        ${badge ? 'flex items-center gap-5' : 'flex flex-col justify-start items-start mb-2'}
+    `}>
         {
             badge ? <div className={`${getColorValues(badgeColor)} flex justify-center items-center p-1 px-3 tracking-tight`}>
                 {title}
