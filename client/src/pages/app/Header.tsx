@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useAuth } from "@/context/authContext"
 import { LogoSvg } from "@/svgs"
-import { Alert, Button } from "@/reusables"
+import { Button } from "@/reusables"
 
 /**
  * 
