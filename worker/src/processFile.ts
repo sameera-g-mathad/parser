@@ -276,10 +276,13 @@ redisSub.subscribe('deleteUser', async (channel, _message) => {
       // 1. Get all the upload filenames to delete from s3.
       const fileNames = await getUserUploads(id);
 
-      const s3Status = await deleteFromS3Bulk(fileNames);
-      if (!s3Status) {
-        updateUploads(id, 'failed');
-        throw Error('Delete from from s3 failed.');
+      // delete files if there are uploads present.
+      if (fileNames.length > 0) {
+        const s3Status = await deleteFromS3Bulk(fileNames);
+        if (!s3Status) {
+          updateUploads(id, 'failed');
+          throw Error('Delete from from s3 failed.');
+        }
       }
 
       // 2. Delete user from user table.
