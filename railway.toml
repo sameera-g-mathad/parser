@@ -1,0 +1,7 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "docker-compose.yaml"
+
+[deploy]
+startCommand = "docker compose up"
+restartPolicyType = "ALWAYS"

@@ -6,7 +6,8 @@
   "scripts": {
     "start:build": "tsc -w",
     "start:run": "nodemon build/server.js",
-    "start": "concurrently -n TS-Compiler,API -c blue,green \"npm:start:build\" \"npm:start:run\""
+    "start": "concurrently -n TS-Compiler,API -c blue,green \"npm:start:build\" \"npm:start:run\"",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",

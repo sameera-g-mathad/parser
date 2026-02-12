@@ -1,9 +1,8 @@
-# Production docker compose file.
 services:
   nginx:
     build:
       context: ./nginx
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
 
     restart: always
 
@@ -14,28 +13,27 @@ services:
       api:
         condition: service_started
 
-    # 80 is the port of local machine,
+    # 3050 is the port of local machine,
     # i.e you can access using http://localhost:3050 from
     # now.
     ports:
-      - 80:80
+      - 3050:80
   client:
     build:
       context: ./client
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
 
     ports:
       - 3000:3000
 
-    # not needed in production
-    # volumes:
-    #   - /app/node_modules
-    #   - ./client:/app
+    volumes:
+      - /app/node_modules
+      - ./client:/app
 
   api:
     build:
       context: ./api
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
 
     # Depends on postgres and redis.
     # Will wait until both the containers
@@ -56,8 +54,8 @@ services:
       - 4000:4000
 
     volumes:
-      # - /app/node_modules
-      # - ./api:/app
+      - /app/node_modules
+      - ./api:/app
       - shared_uploads:/shared # api and worker will share a volume to process uploaded files.
 
   # worker container to handle tasks,
@@ -65,7 +63,7 @@ services:
   worker:
     build:
       context: ./worker
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
 
     depends_on:
       redis:
@@ -79,8 +77,8 @@ services:
       - ./worker/.env
 
     volumes:
-      # - /app/node_modules
-      # - ./worker:/app
+      - /app/node_modules
+      - ./worker:/app
       - shared_uploads:/shared # api and worker will share a volume to process uploaded files.
 
   postgres:
@@ -88,7 +86,7 @@ services:
     # adding custom dockerfile to use embeddings.
     # build:
     #   context: ./postgres
-    #   dockerfile: Dockerfile
+    #   dockerfile: Dockerfile.dev
 
     # using pgvector to use both postgres and pgvector.
     image: pgvector/pgvector:pg17
