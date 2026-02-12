@@ -1,4 +1,5 @@
 # Production docker compose file.
+# only nginx port should be open.
 services:
   nginx:
     build:
@@ -14,23 +15,18 @@ services:
       api:
         condition: service_started
 
-    # 80 is the port of local machine,
-    # i.e you can access using http://localhost:3050 from
+    # 80 is the port to accept requests,
+    # i.e you can access using http://website:80 from
     # now.
     ports:
       - 80:80
+
   client:
     build:
       context: ./client
       dockerfile: Dockerfile
 
-    ports:
-      - 3000:3000
-
-    # not needed in production
-    # volumes:
-    #   - /app/node_modules
-    #   - ./client:/app
+    restart: always
 
   api:
     build:
@@ -52,12 +48,9 @@ services:
       - ./.env
       - ./api/.env
 
-    ports:
-      - 4000:4000
+    restart: always
 
     volumes:
-      # - /app/node_modules
-      # - ./api:/app
       - shared_uploads:/shared # api and worker will share a volume to process uploaded files.
 
   # worker container to handle tasks,
@@ -78,18 +71,12 @@ services:
       - ./.env
       - ./worker/.env
 
+    restart: always
+
     volumes:
-      # - /app/node_modules
-      # - ./worker:/app
       - shared_uploads:/shared # api and worker will share a volume to process uploaded files.
 
   postgres:
-    # image: postgres:17-alpine
-    # adding custom dockerfile to use embeddings.
-    # build:
-    #   context: ./postgres
-    #   dockerfile: Dockerfile
-
     # using pgvector to use both postgres and pgvector.
     image: pgvector/pgvector:pg17
     # Do this so that the db runs succesfully.
@@ -107,8 +94,7 @@ services:
       timeout: 5s
       retries: 5
 
-    ports:
-      - 5432:5432
+    restart: always
 
     # uncomment once the schema is finalized.
     volumes:
@@ -127,8 +113,7 @@ services:
       timeout: 5s
       retries: 5
 
-    ports:
-      - 6379:6379
+    restart: always
 
 volumes:
   postgres_db:
