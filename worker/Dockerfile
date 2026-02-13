@@ -13,4 +13,6 @@ RUN npm run build
 # this removes the devDependencies 
 RUN npm prune --production
 
+ENV NODE_ENV=production
+
 CMD ["node", "build/index.js"]
