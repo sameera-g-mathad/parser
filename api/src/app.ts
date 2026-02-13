@@ -20,17 +20,18 @@ app.use(cookieParser());
 app.use(cors());
 
 // logs requests, Remove during prod.
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'production') app.use(morgan('combined'));
+else app.use(morgan('dev'));
 
 // rate-limiter
-// app.use(
-//   '/api',
-//   rateLimit({
-//     max: 100,
-//     windowMs: 60 * 60 * 1000, // 1hr
-//     message: 'Too many requests from the used ip, try again after some time.',
-//   })
-// );
+app.use(
+  '/api',
+  rateLimit({
+    max: 300,
+    windowMs: 60 * 60 * 1000, // 1hr
+    message: 'Too many requests from the used ip, try again after some time.',
+  }),
+);
 
 // auth flow
 app.use('/api/auth', authRouter);
@@ -42,7 +43,7 @@ app.use('/api/app', protect, appRouter);
 // for all the invalid urls.
 app.use(/.*/, (req: Request, _res: Response, next: NextFunction) => {
   next(
-    new AppError(`The requested url ${req.originalUrl} doesn't exists`, 404)
+    new AppError(`The requested url ${req.originalUrl} doesn't exists`, 404),
   );
 });
 
