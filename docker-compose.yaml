@@ -20,6 +20,10 @@ services:
     # now.
     ports:
       - 80:80
+      - 443:443
+
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
 
   client:
     build:
@@ -118,3 +122,4 @@ services:
 volumes:
   postgres_db:
   shared_uploads: # this will help in storing uploads from the server.
+
