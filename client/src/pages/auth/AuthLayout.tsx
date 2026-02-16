@@ -1,3 +1,4 @@
+import { LogoSvg } from "@/svgs";
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
@@ -24,7 +25,8 @@ export const AuthLayout: React.FC = () => {
             <Outlet />
         </div>
 
-        <div className={`sm:col-start-7 sm:col-span-full hidden sm:block m-3 rounded-lg ${getColor()}`}>
+        <div className={`sm:col-start-7 sm:col-span-full sm:flex justify-center items-center  hidden  m-3 rounded-lg ${getColor()}`}>
+            <LogoSvg className="w-50 h-50 fill-white!" />
         </div>
     </div>;
 };
